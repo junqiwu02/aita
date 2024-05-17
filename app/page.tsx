@@ -1,16 +1,13 @@
-import Image from "next/image";
 import Generator from "./components/generator";
 
-
 export default function Home() {
-
   return (
-    <main className="flex flex-wrap justify-center align-middle max-w-xl mx-auto">
+    <main className="mx-auto flex max-w-xl flex-wrap justify-center align-middle">
       {/* Hero */}
       <div className="my-[64px] text-center">
-        <h1 className="font-bold text-7xl">AI Generated Reddit Stories</h1>
+        <h1 className="text-7xl font-bold">AI Generated Reddit Stories</h1>
       </div>
-      
+
       <Generator />
     </main>
   );
