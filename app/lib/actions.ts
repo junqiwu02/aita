@@ -11,7 +11,7 @@ const TIKTOK_BASE_URL =
   "https://api16-normal-useast5.us.tiktokv.com/media/api/text/speech/invoke";
 const MALE_SPEAKER = "en_us_006";
 
-async function tts(text: string, fileName: string) {
+async function tts(text: string): Promise<string> {
   // prepare text for url param
   text = text.replace("+", "plus");
   text = text.replace(/\s/g, "+");
@@ -31,15 +31,15 @@ async function tts(text: string, fileName: string) {
   });
 
   const data = await res.json();
-  const status_code = data?.status_code;
 
-  if (status_code !== 0) {
-    console.log(`Error: status code ${status_code} from TikTok API`);
-    return;
+  if (data?.status_code !== 0) {
+    console.log(`Tiktok Error: ${data?.status_msg}`);
+    return "";
   }
 
   const encoded_voice = data?.data?.v_str;
-  await fs.writeFile(`${fileName}.mp3`, Buffer.from(encoded_voice, "base64"));
+
+  return encoded_voice;
 }
 
 export async function generate(formData: FormData) {
@@ -53,13 +53,35 @@ export async function generate(formData: FormData) {
     ],
     model: "llama3-8b-8192",
   });
-  // console.log(chat.choices[0]?.message?.content || "");
 
-  const text = chat.choices[0]?.message?.content?.slice(0, 300) || "Error";
-  const fileName = `./public/audios/${text.replace(/[^a-zA-Z0-9]/g, "").slice(0, 50)}`;
+  const text = chat.choices[0]?.message?.content || "Groq Error";
+  console.log(`Received response from Groq:\n${text}`);
 
-  console.log(text);
+  // Break the text into smaller batches
+  const max_batch_size = 300;
+  const delim = ",.!?:";
+  const batches = [];
+  let start = 0;
+  while (start < text.length) {
+    let end = Math.min(start + max_batch_size, text.length - 1);
+    while (start < end && !delim.includes(text[end])) {
+      end -= 1;
+    }
+    if (start === end) {
+      // no delim found, just take entire section
+      end = Math.min(start + max_batch_size, text.length - 1);
+    }
+    batches.push(text.slice(start, end + 1).trim());
+    start = end + 1;
+  }
+
+  console.log(`Split text into batches of length [${batches.map((str) => str.length)}]`);
   console.log("Fetching TikTok API...");
-  await tts(text, fileName);
+  const encoded_voice = (await Promise.all(batches.map(tts))).join('');
+  
+  const fileName = batches[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
+  console.log(`Writing to ${fileName}.mp3`);
+  await fs.writeFile(`./public/audios/${fileName}.mp3`, Buffer.from(encoded_voice, "base64"));
+
   console.log("Done!");
 }
