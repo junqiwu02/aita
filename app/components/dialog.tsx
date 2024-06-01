@@ -8,7 +8,6 @@ export default function Dialog({
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) {
-  
   const handleClose = () => {
     setIsOpen(false);
   };
