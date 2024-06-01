@@ -10,14 +10,15 @@ const groq = new Groq({
 const TIKTOK_BASE_URL =
   "https://api16-normal-useast5.us.tiktokv.com/media/api/text/speech/invoke";
 const MALE_SPEAKER = "en_us_006";
+const FEMALE_SPEAKER = "en_us_001";
 
-async function tts(text: string): Promise<string> {
+async function tts(text: string, speaker: string): Promise<string> {
   // prepare text for url param
   text = text.replace("+", "plus");
   text = text.replace(/\s/g, "+");
   text = text.replace("&", "and");
 
-  const URL = `${TIKTOK_BASE_URL}/?text_speaker=${MALE_SPEAKER}&req_text=${text}&speaker_map_type=0&aid=1233`;
+  const URL = `${TIKTOK_BASE_URL}/?text_speaker=${speaker}&req_text=${text}&speaker_map_type=0&aid=1233`;
   const headers = {
     "User-Agent":
       "com.zhiliaoapp.musically/2022600030 (Linux; U; Android 7.1.2; es_ES; SM-G988N; Build/NRD90M;tt-ok/3.12.13.1)",
@@ -44,6 +45,7 @@ async function tts(text: string): Promise<string> {
 
 export async function generate(formData: FormData) {
   const title = formData.get("title");
+  const speaker = formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
   const chat = await groq.chat.completions.create({
     messages: [
       {
@@ -77,7 +79,7 @@ export async function generate(formData: FormData) {
 
   console.log(`Split text into batches of length [${batches.map((str) => str.length)}]`);
   console.log("Fetching TikTok API...");
-  const encoded_voice = (await Promise.all(batches.map(tts))).join('');
+  const encoded_voice = (await Promise.all(batches.map((text) => tts(text, speaker)))).join('');
   
   const fileName = batches[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
   console.log(`Writing to ${fileName}.mp3`);
