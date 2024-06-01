@@ -8,12 +8,11 @@ export default function Dialog({
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) {
-  
   const handleClose = () => {
     setIsOpen(false);
   };
 
-  const handleDialogClick = (e: MouseEvent<HTMLDivElement>) => {
+  const handleContentClick = (e: MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
   };
 
@@ -26,7 +25,7 @@ export default function Dialog({
         >
           <div
             className="rounded bg-neutral-800 p-4 text-white shadow-lg"
-            onClick={handleDialogClick}
+            onClick={handleContentClick}
           >
             <div className="flex justify-between">
               <h2 className="p-1 font-bold">Generate Video 🎥</h2>

@@ -16,19 +16,15 @@ export default function Form() {
       </div>
       <div>
         <label className="block" htmlFor="">
-          Length
+          Speaker
         </label>
         <label className="p-2">
-          <input type="radio" name="length" disabled />
-          1-2min
+          <input type="radio" name="speaker" value="male" />
+          Male
         </label>
         <label className="p-2">
-          <input type="radio" name="length" disabled />
-          2-5min
-        </label>
-        <label className="p-2">
-          <input type="radio" name="length" disabled />
-          5min+
+          <input type="radio" name="speaker" value="female" />
+          Female
         </label>
       </div>
       <div>
