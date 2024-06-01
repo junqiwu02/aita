@@ -1,15 +1,14 @@
-"use client";
-
-import { MouseEvent, useState } from "react";
+import { MouseEvent } from "react";
 import Form from "./form";
 
-export default function Dialog() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleClick = () => {
-    setIsOpen(true);
-  };
-
+export default function Dialog({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}) {
+  
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -32,7 +31,7 @@ export default function Dialog() {
             <div className="flex justify-between">
               <h2 className="p-1 font-bold">Generate Video 🎥</h2>
               <button
-                className="rounded py-1 px-2 hover:text-neutral-300"
+                className="rounded px-2 py-1 hover:text-neutral-300"
                 onClick={handleClose}
               >
                 x
@@ -42,13 +41,6 @@ export default function Dialog() {
           </div>
         </dialog>
       )}
-
-      <button
-        className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700"
-        onClick={handleClick}
-      >
-        Let&apos;s Go!
-      </button>
     </>
   );
 }
