@@ -2,6 +2,7 @@
 
 import Groq from "groq-sdk";
 import { promises as fs } from "fs";
+import { redirect } from "next/navigation";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -45,7 +46,8 @@ async function tts(text: string, speaker: string): Promise<string> {
 
 export async function generate(formData: FormData) {
   const title = formData.get("title");
-  const speaker = formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
+  const speaker =
+    formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
   const chat = await groq.chat.completions.create({
     messages: [
       {
@@ -60,30 +62,38 @@ export async function generate(formData: FormData) {
   console.log(`Received response from Groq:\n${text}`);
 
   // Break the text into smaller batches
-  const max_batch_size = 300;
+  const maxLen = 300;
   const delim = ",.!?:";
   const batches = [];
   let start = 0;
   while (start < text.length) {
-    let end = Math.min(start + max_batch_size, text.length);
+    let end = Math.min(start + maxLen, text.length);
     while (start < end - 1 && !delim.includes(text[end - 1])) {
       end -= 1;
     }
     if (start === end - 1) {
       // no delim found, just take entire section
-      end = Math.min(start + max_batch_size, text.length);
+      end = Math.min(start + maxLen, text.length);
     }
     batches.push(text.slice(start, end).trim());
     start = end;
   }
 
-  console.log(`Split text into batches of length [${batches.map((str) => str.length)}]`);
+  console.log(
+    `Split text into batches of length [${batches.map((str) => str.length)}]`,
+  );
   console.log("Fetching TikTok API...");
-  const encoded_voice = (await Promise.all(batches.map((text) => tts(text, speaker)))).join('');
-  
-  const fileName = batches[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
-  console.log(`Writing to ${fileName}.mp3`);
-  await fs.writeFile(`./public/audios/${fileName}.mp3`, Buffer.from(encoded_voice, "base64"));
+  const encoded_voice = (
+    await Promise.all(batches.map((text) => tts(text, speaker)))
+  ).join("");
 
-  console.log("Done!");
+  const fileName = "output";
+  // const fileName = batches[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
+  console.log(`Writing to ${fileName}.mp3`);
+  await fs.writeFile(
+    `./public/audios/${fileName}.mp3`,
+    Buffer.from(encoded_voice, "base64"),
+  );
+
+  redirect(`/audios/${fileName}.mp3`);
 }
