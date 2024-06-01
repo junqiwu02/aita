@@ -65,16 +65,16 @@ export async function generate(formData: FormData) {
   const batches = [];
   let start = 0;
   while (start < text.length) {
-    let end = Math.min(start + max_batch_size, text.length - 1);
-    while (start < end && !delim.includes(text[end])) {
+    let end = Math.min(start + max_batch_size, text.length);
+    while (start < end - 1 && !delim.includes(text[end - 1])) {
       end -= 1;
     }
-    if (start === end) {
+    if (start === end - 1) {
       // no delim found, just take entire section
-      end = Math.min(start + max_batch_size, text.length - 1);
+      end = Math.min(start + max_batch_size, text.length);
     }
-    batches.push(text.slice(start, end + 1).trim());
-    start = end + 1;
+    batches.push(text.slice(start, end).trim());
+    start = end;
   }
 
   console.log(`Split text into batches of length [${batches.map((str) => str.length)}]`);
