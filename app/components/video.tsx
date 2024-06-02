@@ -29,7 +29,7 @@ export default function Video({ id }: { id: string }) {
     await ffmpeg.writeFile('audio.mp3', await fetchFile('/audios/output.mp3'));
     await ffmpeg.writeFile('subs.srt', await fetchFile('/test.srt'));
     await ffmpeg.writeFile('tmp/arial.ttf', await fetchFile('https://raw.githubusercontent.com/ffmpegwasm/testdata/master/arial.ttf'));
-    await ffmpeg.exec(['-i', 'video.mp4', '-i', 'audio.mp3', '-c', 'copy', '-map', '0:v:0', '-map', '1:a:0', 'mixed.mp4']);
+    await ffmpeg.exec(['-i', 'video.mp4', '-i', 'audio.mp3', '-c', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-shortest', 'mixed.mp4']);
     await ffmpeg.exec(['-i', 'mixed.mp4', '-vf', `subtitles=subs.srt:fontsdir=/tmp:force_style='Alignment=10'`, '-preset', 'ultrafast', 'output.mp4']);
     const data = await ffmpeg.readFile('output.mp4');
     videoRef.current.src =
