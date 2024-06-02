@@ -1,0 +1,19 @@
+[Script Info]
+Title: AITA for not inviting my sister to my wedding?
+Original Script: ChatGPT
+ScriptType: v4.00+
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H64000000,-1,0,0,0,100,100,0,0,1,1,0,2,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:05.00,Default,,0,0,0,,My sister (28F) and I (26F) have never been close. Growing up, we had different interests and friends, and we rarely spent time together.
+Dialogue: 0,0:00:05.00,0:00:10.00,Default,,0,0,0,,Recently, she did something that really hurt me. She threw a party and invited everyone in the family except for me.
+Dialogue: 0,0:00:10.00,0:00:15.00,Default,,0,0,0,,I only found out about it through social media. When I confronted her, she said it was a "small gathering" and she "didn't think I'd be interested."
+Dialogue: 0,0:00:15.00,0:00:20.00,Default,,0,0,0,,Fast forward to my wedding planning. I decided not to invite her. I felt that if she didn't want me at her parties, why should I want her at my wedding?
+Dialogue: 0,0:00:20.00,0:00:25.00,Default,,0,0,0,,When the invitations went out, my parents were furious. They said I was being petty and that I should "be the bigger person."
+Dialogue: 0,0:00:25.00,0:00:30.00,Default,,0,0,0,,They are now threatening not to come to the wedding if I don't invite her. I feel like I'm stuck between a rock and a hard place.
+Dialogue: 0,0:00:30.00,0:00:35.00,Default,,0,0,0,,On one hand, I don't want her there because of how she's treated me. On the other hand, I don't want to ruin my relationship with my parents.
+Dialogue: 0,0:00:35.00,0:00:40.00,Default,,0,0,0,,So, AITA for not inviting my sister to my wedding?
