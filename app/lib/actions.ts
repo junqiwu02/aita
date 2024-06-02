@@ -45,6 +45,11 @@ async function tts(text: string, speaker: string): Promise<string> {
 }
 
 export async function generate(formData: FormData) {
+  // Prod code below, just simulating generation for now
+  redirect(`/vid/output`);
+}
+/*
+export async function generate(formData: FormData) {
   const title = formData.get("title");
   const speaker =
     formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
@@ -95,5 +100,6 @@ export async function generate(formData: FormData) {
     Buffer.from(encoded_voice, "base64"),
   );
 
-  redirect(`/audios/${fileName}.mp3`);
+  redirect(`/vid/${fileName}`);
 }
+*/

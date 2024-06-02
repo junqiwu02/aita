@@ -19,7 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Nav />
-        {children}
+        <main className="mx-auto flex max-w-xl flex-wrap justify-center align-middle">
+          {children}
+        </main>
       </body>
     </html>
   );
