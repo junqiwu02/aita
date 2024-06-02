@@ -46,7 +46,7 @@ async function tts(text: string, speaker: string): Promise<string> {
 
 export async function generate(formData: FormData) {
   // Prod code below, just simulating generation for now
-  redirect(`/vid/output`);
+  redirect(`/gen/output`);
 }
 /*
 export async function generate(formData: FormData) {
@@ -100,6 +100,6 @@ export async function generate(formData: FormData) {
     Buffer.from(encoded_voice, "base64"),
   );
 
-  redirect(`/vid/${fileName}`);
+  redirect(`/gen/${fileName}`);
 }
 */
