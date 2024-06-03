@@ -1,6 +1,7 @@
 ## TODO
 - [ ] Graceful error handling
 - [ ] Automatic retries for Tiktok API POSTs
+- [ ] Finish documentation
 - [ ] Finish the README :D
 - [ ] Option for random topic
 - [ ] Option for adding an edit, tl;dr, and/or update
