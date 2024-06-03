@@ -87,12 +87,12 @@ export async function generate(formData: FormData) {
 
   function calcDuration(word: string) {
     word = word.toLowerCase();
-    let count = 0;
-    // add 1 for each syllable
+    let count = 1;
+    // add 0.333 for each additional syllable
     const vowelGroups = word.match(/[aeiouy]+/g);
-    count += vowelGroups ? vowelGroups.length : 0;
-    // add 2 if it's the end of a phrase
-    count += (/[,.!?]/).test(word) ? 1 : 0;
+    count += vowelGroups ? (vowelGroups.length - 1) * 0.333 : 0;
+    // add 0.9 if it's the end of a phrase
+    count += (/[,.!?]/).test(word) ? 0.9 : 0;
     return count;
   }
 
