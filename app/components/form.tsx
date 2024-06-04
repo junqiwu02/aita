@@ -8,10 +8,10 @@ export default function Form() {
           Title
         </label>
         <input
-          className="rounded p-2 text-black shadow"
+          className="rounded p-2 text-black shadow w-[100%]"
           type="text"
           name="title"
-          placeholder="Am I [22M] the asshole for..."
+          placeholder="Leave blank for a random title"
         />
       </div>
       <div>

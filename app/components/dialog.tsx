@@ -20,11 +20,11 @@ export default function Dialog({
     <>
       {isOpen && (
         <dialog
-          className="fixed left-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-0 backdrop-blur"
+          className="fixed left-0 top-0 z-10 flex h-full w-full items-center justify-center bg-black bg-opacity-80"
           onClick={handleClose}
         >
           <div
-            className="rounded bg-neutral-800 p-4 text-white shadow-lg"
+            className="rounded bg-neutral-800 p-4 text-white shadow-lg w-[600px] max-w-[100%]"
             onClick={handleContentClick}
           >
             <div className="flex justify-between">

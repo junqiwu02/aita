@@ -28,21 +28,36 @@ async function tts(text: string, speaker: string): Promise<string> {
     "Accept-Encoding": "gzip,deflate,compress",
   };
 
-  const res = await fetch(URL, {
-    method: "POST",
-    headers: headers,
-  });
+  for (let attempts = 0; attempts < 5; attempts++) {
+    try {
+      // fetch with 5s timeout
+      const res = await fetch(URL, {
+        method: "POST",
+        headers: headers,
+        signal: AbortSignal.timeout(3000),
+      });
 
-  const data = await res.json();
+      if (!res.ok) {
+        throw new Error(`HTTP Error: ${res.status}`);
+      }
 
-  if (data?.status_code !== 0) {
-    console.log(`Tiktok Error: ${data?.status_msg}`);
-    return "";
+      const data = await res.json();
+  
+      if (data?.status_code !== 0) {
+        throw new Error(`Tiktok Error: ${data?.status_msg}`);
+      }
+    
+      const encoded_voice = data?.data?.v_str;
+    
+      return encoded_voice;
+    } catch (e) {
+      console.log(e);
+      console.log('Retrying...');
+    }
   }
 
-  const encoded_voice = data?.data?.v_str;
-
-  return encoded_voice;
+  console.log("Out of retries.");
+  return "";
 }
 
 function ass(batches: string[], encodedLens: number[]) {
@@ -77,7 +92,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
   function heuristic(word: string) {
     let dur = 1;
     dur += word.length * 0.1;
-    dur += /[,.!?]/.test(word) ? 1.3 : 0;
+    dur += /[,.!?]/.test(word) ? 1.5 : 0;
     return dur;
   }
 
@@ -106,15 +121,16 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 export async function generate(formData: FormData) {
   const title = formData.get("title");
+  const titlePrompt = title ? `the title ${title}` : "a random title"
   const speaker =
-    formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
+    formData.get("speaker") === "female" ? FEMALE_SPEAKER : MALE_SPEAKER;
   const include = formData.getAll("include");
-  const tldr = include.includes("tldr") ? "" : "DO NOT ";
-  const edit = include.includes("edit") ? "" : "DO NOT ";
-  const update = include.includes("update") ? "" : "DO NOT ";
+  const tldr = include.includes("tldr") ? "Do " : "Do not ";
+  const edit = include.includes("edit") ? "Do " : "Do not ";
+  const update = include.includes("update") ? "Do " : "Do not ";
   const content =
-    `Generate a Reddit story in the form of a r/AmItheAsshole post with the title ${title}. ` +
-    `Include the title as the first line of the response. DO NOT use asterisks or dashes for formating. ` +
+    `Generate a Reddit story in the form of a r/AmItheAsshole post with ${titlePrompt}. ` +
+    `Include the title as the first line of the response. Do not use asterisks or dashes for formating. ` +
     `${tldr}Include a TL;DR to the bottom of the post. ` +
     `${edit}Include an edit to the bottom of the post. ` +
     `${update}Include an update to the bottom of the post.`;
