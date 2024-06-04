@@ -53,7 +53,7 @@ PlayDepth: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Arial,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,1,0,5,10,10,10,1
+Style: Default,Montserrat ExtraBold,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,2,5,10,10,10,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -84,8 +84,8 @@ function align(batches: string[], totalDuration: number) {
 
   function heuristic(word: string) {
     let dur = 1;
-    dur += word.length * 0.25;
-    dur += (/[,.!?]/).test(word) ? 1.25 : 0;
+    dur += word.length * 0.15;
+    dur += (/[,.!?]/).test(word) ? 1.3 : 0;
     return dur;
   }
 
@@ -98,7 +98,7 @@ function align(batches: string[], totalDuration: number) {
 }
 
 // Prod code below, just simulating generation for now
-// /*
+/*
 export async function generate(formData: FormData) {
   const batches = ["Am I the asshole for liking Miffy? I'm a 22-year-old male and for some reason, I've always had a weird affection for Miffy.","Like, I love the little white rabbit with the cute little nose and floppy ears. I know it sounds weird, but I just find her adorable.","My friends and family always give me crap about it, saying I'm too old to be liking a kid's cartoon character, and that I should be ashamed of myself. But honestly, it doesn't bother me.","Miffy is just so cute and innocent, you know? And I like that she's a bit simple and doesn't try to be all fancy or complex.","Sometimes, I'll just sit there and watch old episodes of the anime or read the comics, and just feel... happy. It's weird, I know, but I love Miffy.","But the weird thing is, my girlfriend of two years doesn't think it's cool.","She's always making fun of me when I watch Miffy with her, saying I'm being immature and that I should focus on more \"grown-up\" things. And honestly, it's starting to get on my nerves.","I feel like I'm being judged for having a simple fondness for a children's character. Is it really that weird? AITA for loving Miffy as much as I do? Or am I just being a big dork?"];
 
@@ -108,8 +108,8 @@ export async function generate(formData: FormData) {
 
   redirect(`/gen/output`);
 }
-// */
-/*
+*/
+// /*
 export async function generate(formData: FormData) {
   const title = formData.get("title");
   const speaker =
@@ -159,6 +159,12 @@ export async function generate(formData: FormData) {
     Buffer.from(encoded_voice, "base64"),
   );
 
+  const totalDuration = encoded_voice.length / 21400;
+  console.log(`Estimated audio duration at ${totalDuration}s`);
+  const subs = align(batches, totalDuration);
+  console.log(`Writing to ${fileName}.ass`);
+  await fs.writeFile(`./public/subs/${fileName}.ass`, Buffer.from(subs));
+
   redirect(`/gen/${fileName}`);
 }
-*/
+// */

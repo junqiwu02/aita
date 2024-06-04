@@ -15,6 +15,9 @@ export default function Video({ id }: { id: string }) {
     console.log('Staring render...')
     const ffmpeg = ffmpegRef.current;
     const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
+    ffmpeg.on('log', ({ message }) => {
+      console.log(message);
+  });
     // toBlobURL is used to bypass CORS issue, urls with the same domain can be used directly.
     await ffmpeg.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
@@ -31,9 +34,9 @@ export default function Video({ id }: { id: string }) {
     // await ffmpeg.writeFile('subs.srt', await fetchFile('/test.srt'));
     await ffmpeg.writeFile("subs.ass", await fetchFile("/subs/output.ass"));
     await ffmpeg.writeFile(
-      "tmp/arial.ttf",
+      "tmp/font.ttf",
       await fetchFile(
-        "https://raw.githubusercontent.com/ffmpegwasm/testdata/master/arial.ttf",
+        "/Montserrat-ExtraBold.ttf",
       ),
     );
     await ffmpeg.exec([
