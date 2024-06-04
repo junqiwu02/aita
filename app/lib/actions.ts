@@ -12,6 +12,7 @@ const TIKTOK_BASE_URL =
   "https://api16-normal-useast5.us.tiktokv.com/media/api/text/speech/invoke";
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
+const CPS = 21400; // base64 encoded chars per second of audio
 
 async function tts(text: string, speaker: string): Promise<string> {
   // prepare text for url param
@@ -44,7 +45,7 @@ async function tts(text: string, speaker: string): Promise<string> {
   return encoded_voice;
 }
 
-function ass(tokens: string[], durations: number[]) {
+function ass(batches: string[], encodedLens: number[]) {
   const header = `[Script Info]
 Title: Transcript
 ScriptType: v4.00+
@@ -67,34 +68,34 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     return `${hr}:${min}:${sec}.${centisec}`;
   }
 
-  const dialogues: string[] = [];
-  let currTime = 0;
-  tokens.forEach((text, i) => {
-    const start = toAssTime(currTime);
-    const end = toAssTime(currTime + durations[i]);
-    currTime += durations[i];
-    dialogues.push(`Dialogue: 0,${start},${end},Default,,0,0,0,,${text}`);
-  });
-
-  return header + dialogues.join('\n');
-}
-
-function align(batches: string[], totalDuration: number) {
-  const tokens = batches.join(" ").split(" ");
-
   function heuristic(word: string) {
     let dur = 1;
-    dur += word.length * 0.15;
+    dur += word.length * 0.1;
     dur += (/[,.!?]/).test(word) ? 1.3 : 0;
     return dur;
   }
 
-  let durations = tokens.map(str => heuristic(str));
-  // normalize to sum to totalDuration
-  const baseDuration = totalDuration / durations.reduce((acc, dur) => acc + dur);
-  durations = durations.map(dur => baseDuration * dur);
+  const dialogues: string[] = [];
+  let currTime = 0;
 
-  return ass(tokens, durations);
+  for (let i = 0; i < batches.length; i++) {
+    // split batch into individual tokens and calc duration in seconds of each token
+    const totalDuration = encodedLens[i] / CPS;
+    const tokens = batches[i].split(" ");
+    let durations = tokens.map(str => heuristic(str));
+    // normalize to sum to totalDuration
+    const norm = totalDuration / durations.reduce((sum, x) => sum + x);
+    durations = durations.map(dur => norm * dur);
+
+    tokens.forEach((text, j) => {
+      const start = toAssTime(currTime);
+      const end = toAssTime(currTime + durations[j]);
+      currTime += durations[j];
+      dialogues.push(`Dialogue: 0,${start},${end},Default,,0,0,0,,${text}`);
+    });
+  }
+
+  return header + dialogues.join('\n');
 }
 
 // Prod code below, just simulating generation for now
@@ -154,7 +155,8 @@ export async function generate(formData: FormData) {
   );
 
   console.log("Fetching TikTok API...");
-  const encoded_voice = (await Promise.all(batches.map(text => tts(text, speaker)))).join("");
+  const encoded_voices = await Promise.all(batches.map(text => tts(text, speaker)));
+  const encoded_voice = encoded_voices.join("");
 
   const fileName = "output";
   console.log(`Writing ${encoded_voice.length} chars to ${fileName}.mp3`);
@@ -163,9 +165,9 @@ export async function generate(formData: FormData) {
     Buffer.from(encoded_voice, "base64"),
   );
 
-  const totalDuration = encoded_voice.length / 21400;
-  console.log(`Estimated audio duration at ${totalDuration}s`);
-  const subs = align(batches, totalDuration);
+  
+  const subs = ass(batches, encoded_voices.map(str => str.length));
+  console.log(`Estimated audio duration at ${subs.split("\n").at(-1)}`);
   console.log(`Writing to ${fileName}.ass`);
   await fs.writeFile(`./public/subs/${fileName}.ass`, Buffer.from(subs));
 

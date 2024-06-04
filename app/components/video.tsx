@@ -90,7 +90,7 @@ export default function Video({ id }: { id: string }) {
       <div hidden={mixed}>
         <p className="w-[100%] my-4 text-center" ref={progressRef}>Rendering your video...</p>
         <div className="w-full bg-gray-200 rounded">
-          <div className="bg-indigo-500 text-xs text-center p-0.5 leading-none rounded" style={{width: percentage}}>{percentage}%</div>
+          <div className="bg-indigo-500 text-xs text-center p-0.5 leading-none rounded" style={{width: `${percentage}%`}}>{percentage}%</div>
         </div>
       </div>
       <video className="h-[75vh] w-auto" ref={videoRef} hidden={!mixed} controls></video>
