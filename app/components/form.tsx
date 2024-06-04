@@ -29,7 +29,11 @@ export default function Form() {
       </div>
       <div>
         <label className="block" htmlFor="">
-          Include
+          Include a
+        </label>
+        <label className="p-2">
+          <input type="checkbox" name="include" value="tldr" />
+          TL;DR
         </label>
         <label className="p-2">
           <input type="checkbox" name="include" value="edit" />

@@ -62,16 +62,22 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
   function toAssTime(t: number) {
     const hr = Math.floor(t / 3600);
-    const min = Math.floor((t % 3600) / 60).toString().padStart(2, '0');
-    const sec = Math.floor(t % 60).toString().padStart(2, '0');
-    const centisec = Math.floor((t * 100) % 100).toString().padStart(2, '0');
+    const min = Math.floor((t % 3600) / 60)
+      .toString()
+      .padStart(2, "0");
+    const sec = Math.floor(t % 60)
+      .toString()
+      .padStart(2, "0");
+    const centisec = Math.floor((t * 100) % 100)
+      .toString()
+      .padStart(2, "0");
     return `${hr}:${min}:${sec}.${centisec}`;
   }
 
   function heuristic(word: string) {
     let dur = 1;
     dur += word.length * 0.1;
-    dur += (/[,.!?]/).test(word) ? 1.3 : 0;
+    dur += /[,.!?]/.test(word) ? 1.3 : 0;
     return dur;
   }
 
@@ -82,10 +88,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     // split batch into individual tokens and calc duration in seconds of each token
     const totalDuration = encodedLens[i] / CPS;
     const tokens = batches[i].split(" ");
-    let durations = tokens.map(str => heuristic(str));
+    let durations = tokens.map((str) => heuristic(str));
     // normalize to sum to totalDuration
     const norm = totalDuration / durations.reduce((sum, x) => sum + x);
-    durations = durations.map(dur => norm * dur);
+    durations = durations.map((dur) => norm * dur);
 
     tokens.forEach((text, j) => {
       const start = toAssTime(currTime);
@@ -95,30 +101,24 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     });
   }
 
-  return header + dialogues.join('\n');
+  return header + dialogues.join("\n");
 }
 
-// Prod code below, just simulating generation for now
-/*
-export async function generate(formData: FormData) {
-  const batches = ["Am I the asshole for liking Miffy? I'm a 22-year-old male and for some reason, I've always had a weird affection for Miffy.","Like, I love the little white rabbit with the cute little nose and floppy ears. I know it sounds weird, but I just find her adorable.","My friends and family always give me crap about it, saying I'm too old to be liking a kid's cartoon character, and that I should be ashamed of myself. But honestly, it doesn't bother me.","Miffy is just so cute and innocent, you know? And I like that she's a bit simple and doesn't try to be all fancy or complex.","Sometimes, I'll just sit there and watch old episodes of the anime or read the comics, and just feel... happy. It's weird, I know, but I love Miffy.","But the weird thing is, my girlfriend of two years doesn't think it's cool.","She's always making fun of me when I watch Miffy with her, saying I'm being immature and that I should focus on more \"grown-up\" things. And honestly, it's starting to get on my nerves.","I feel like I'm being judged for having a simple fondness for a children's character. Is it really that weird? AITA for loving Miffy as much as I do? Or am I just being a big dork?"];
-
-  const subs = align(batches, 65);
-  console.log(`Writing to output.ass`);
-  await fs.writeFile(`./public/subs/output.ass`, Buffer.from(subs));
-
-  redirect(`/gen/output`);
-}
-*/
-// /*
 export async function generate(formData: FormData) {
   const title = formData.get("title");
   const speaker =
     formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
   const include = formData.getAll("include");
-  const edit = include.includes("edit") ? " And add an edit to the bottom of the post." : "";
-  const update = include.includes("update") ? " And add an update to the bottom of the post." : "";
-  const content = `Generate a Reddit story in the form of a r/AmItheAsshole post with the title ${title}. Include the title as the first line of the response. Do not use asterisks or dashes for formating.${edit}${update}`;
+  const tldr = include.includes("tldr")
+    ? " And add a TL;DR to the bottom of the post."
+    : "";
+  const edit = include.includes("edit")
+    ? " And add an edit to the bottom of the post."
+    : "";
+  const update = include.includes("update")
+    ? " And add an update to the bottom of the post."
+    : "";
+  const content = `Generate a Reddit story in the form of a r/AmItheAsshole post with the title ${title}. Include the title as the first line of the response. Do not use asterisks or dashes for formating.${tldr}${edit}${update}`;
   const chat = await groq.chat.completions.create({
     messages: [
       {
@@ -130,8 +130,8 @@ export async function generate(formData: FormData) {
   });
 
   const rawText = chat.choices[0]?.message?.content || "Groq Error";
-  const text = rawText.replace(/\n+/g, ' '); // convert newlines into spaces for better tts
-  console.log(`Received response from Groq:\n${text}`);
+  const text = rawText.replace(/\n+/g, " "); // convert newlines into spaces for better tts
+  console.log(`Received response from Groq:\n${rawText}`);
 
   // Break the text into smaller batches since the api rejects long texts
   const maxLen = 200;
@@ -150,12 +150,11 @@ export async function generate(formData: FormData) {
     batches.push(text.slice(start, end).trim());
     start = end;
   }
-  console.log(
-    `Split text into batches of length [${batches.map(str => str.length)}]`,
-  );
 
-  console.log("Fetching TikTok API...");
-  const encoded_voices = await Promise.all(batches.map(text => tts(text, speaker)));
+  console.log(`Fetching TikTok API with batches of len [${batches.map((str) => str.length)}]`);
+  const encoded_voices = await Promise.all(
+    batches.map((text) => tts(text, speaker)),
+  );
   const encoded_voice = encoded_voices.join("");
 
   const fileName = "output";
@@ -165,12 +164,13 @@ export async function generate(formData: FormData) {
     Buffer.from(encoded_voice, "base64"),
   );
 
-  
-  const subs = ass(batches, encoded_voices.map(str => str.length));
-  console.log(`Estimated audio duration at ${subs.split("\n").at(-1)}`);
+  const subs = ass(
+    batches,
+    encoded_voices.map((str) => str.length),
+  );
+  console.log(`Estimated audio duration at ${subs.split("\n").at(-1)?.slice(23, 33)}`);
   console.log(`Writing to ${fileName}.ass`);
   await fs.writeFile(`./public/subs/${fileName}.ass`, Buffer.from(subs));
 
   redirect(`/gen/${fileName}`);
 }
-// */

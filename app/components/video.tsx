@@ -3,22 +3,22 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useRef, useState } from "react";
+import Progress from "./progress";
 
 export default function Video({ id }: { id: string }) {
   const [loaded, setLoaded] = useState(false);
-  const [mixed, setMixed] = useState(false);
+  const [rendered, setRendered] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const ffmpegRef = useRef(new FFmpeg());
   const videoRef = useRef(null);
   const progressRef = useRef(null);
 
   const generate = async () => {
-    console.log('Staring render...')
     const ffmpeg = ffmpegRef.current;
     const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
-    ffmpeg.on('log', ({ message }) => {
+    ffmpeg.on("log", ({ message }) => {
       console.log(message);
-  });
+    });
     // toBlobURL is used to bypass CORS issue, urls with the same domain can be used directly.
     await ffmpeg.load({
       coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
@@ -27,18 +27,16 @@ export default function Video({ id }: { id: string }) {
         "application/wasm",
       ),
     });
-    
+
     setLoaded(true);
-    
+
     await ffmpeg.writeFile("video.mp4", await fetchFile("/minecraft0.mp4"));
     await ffmpeg.writeFile("audio.mp3", await fetchFile("/audios/output.mp3"));
     // await ffmpeg.writeFile('subs.srt', await fetchFile('/test.srt'));
     await ffmpeg.writeFile("subs.ass", await fetchFile("/subs/output.ass"));
     await ffmpeg.writeFile(
       "tmp/font.ttf",
-      await fetchFile(
-        "/Montserrat-ExtraBold.ttf",
-      ),
+      await fetchFile("/Montserrat-ExtraBold.ttf"),
     );
     await ffmpeg.exec([
       "-i",
@@ -58,7 +56,7 @@ export default function Video({ id }: { id: string }) {
     ffmpeg.on("progress", ({ progress, time }) => {
       setPercentage(Math.floor(progress * 100));
     });
-    
+
     await ffmpeg.exec([
       "-i",
       "mixed.mp4",
@@ -73,35 +71,44 @@ export default function Video({ id }: { id: string }) {
       new Blob([data.buffer], { type: "video/mp4" }),
     );
 
-    setMixed(true);
+    setRendered(true);
   };
-
 
   useEffect(() => {
     const ffmpeg = ffmpegRef.current;
     return () => {
       // stop any running commands if the component unmounts
       ffmpeg.terminate();
-    }
+    };
   }, []);
 
   return loaded ? (
     <>
-      <div hidden={mixed}>
-        <p className="w-[100%] my-4 text-center" ref={progressRef}>Rendering your video...</p>
-        <div className="w-full bg-gray-200 rounded">
-          <div className="bg-indigo-500 text-xs text-center p-0.5 leading-none rounded" style={{width: `${percentage}%`}}>{percentage}%</div>
-        </div>
+      <div hidden={rendered}>
+        <p className="my-4 w-[100%] text-center" ref={progressRef}>
+          Rendering your video...
+        </p>
+        <Progress percentage={percentage} />
       </div>
-      <video className="h-[75vh] w-auto" ref={videoRef} hidden={!mixed} controls></video>
+      <video
+        className="h-[75vh] w-auto"
+        ref={videoRef}
+        hidden={!rendered}
+        controls
+      ></video>
     </>
   ) : (
     <>
-      <div className="my-8 text-center w-[100%]">
+      <div className="my-8 w-[100%] text-center">
         <h1 className="text-3xl font-bold">Your video is ready!</h1>
       </div>
       <div>
-        <button className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700" onClick={generate}>Render</button>
+        <button
+          className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700"
+          onClick={generate}
+        >
+          Render
+        </button>
       </div>
     </>
   );
