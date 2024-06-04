@@ -44,11 +44,72 @@ async function tts(text: string, speaker: string): Promise<string> {
   return encoded_voice;
 }
 
+function ass(tokens: string[], durations: number[]) {
+  const header = `[Script Info]
+Title: Transcript
+ScriptType: v4.00+
+Collisions: Normal
+PlayDepth: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Montserrat ExtraBold,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,2,5,10,10,10,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+`;
+
+  function toAssTime(t: number) {
+    const hr = Math.floor(t / 3600);
+    const min = Math.floor((t % 3600) / 60).toString().padStart(2, '0');
+    const sec = Math.floor(t % 60).toString().padStart(2, '0');
+    const centisec = Math.floor((t * 100) % 100).toString().padStart(2, '0');
+    return `${hr}:${min}:${sec}.${centisec}`;
+  }
+
+  const dialogues: string[] = [];
+  let currTime = 0;
+  tokens.forEach((text, i) => {
+    const start = toAssTime(currTime);
+    const end = toAssTime(currTime + durations[i]);
+    currTime += durations[i];
+    dialogues.push(`Dialogue: 0,${start},${end},Default,,0,0,0,,${text}`);
+  });
+
+  return header + dialogues.join('\n');
+}
+
+function align(batches: string[], totalDuration: number) {
+  const tokens = batches.join(" ").split(" ");
+
+  function heuristic(word: string) {
+    let dur = 1;
+    dur += word.length * 0.15;
+    dur += (/[,.!?]/).test(word) ? 1.3 : 0;
+    return dur;
+  }
+
+  let durations = tokens.map(str => heuristic(str));
+  // normalize to sum to totalDuration
+  const baseDuration = totalDuration / durations.reduce((acc, dur) => acc + dur);
+  durations = durations.map(dur => baseDuration * dur);
+
+  return ass(tokens, durations);
+}
+
+// Prod code below, just simulating generation for now
+/*
 export async function generate(formData: FormData) {
-  // Prod code below, just simulating generation for now
+  const batches = ["Am I the asshole for liking Miffy? I'm a 22-year-old male and for some reason, I've always had a weird affection for Miffy.","Like, I love the little white rabbit with the cute little nose and floppy ears. I know it sounds weird, but I just find her adorable.","My friends and family always give me crap about it, saying I'm too old to be liking a kid's cartoon character, and that I should be ashamed of myself. But honestly, it doesn't bother me.","Miffy is just so cute and innocent, you know? And I like that she's a bit simple and doesn't try to be all fancy or complex.","Sometimes, I'll just sit there and watch old episodes of the anime or read the comics, and just feel... happy. It's weird, I know, but I love Miffy.","But the weird thing is, my girlfriend of two years doesn't think it's cool.","She's always making fun of me when I watch Miffy with her, saying I'm being immature and that I should focus on more \"grown-up\" things. And honestly, it's starting to get on my nerves.","I feel like I'm being judged for having a simple fondness for a children's character. Is it really that weird? AITA for loving Miffy as much as I do? Or am I just being a big dork?"];
+
+  const subs = align(batches, 65);
+  console.log(`Writing to output.ass`);
+  await fs.writeFile(`./public/subs/output.ass`, Buffer.from(subs));
+
   redirect(`/gen/output`);
 }
-/*
+*/
+// /*
 export async function generate(formData: FormData) {
   const title = formData.get("title");
   const speaker =
@@ -63,12 +124,13 @@ export async function generate(formData: FormData) {
     model: "llama3-8b-8192",
   });
 
-  const text = chat.choices[0]?.message?.content || "Groq Error";
-  console.log(`Received response from Groq:\n${text}`);
+  const rawText = chat.choices[0]?.message?.content || "Groq Error";
+  const text = rawText.replace(/\n+/g, ' '); // convert newlines into spaces for better tts
+  console.log(`Received response from Groq of length ${text.length}`);
 
-  // Break the text into smaller batches
-  const maxLen = 300;
-  const delim = ",.!?:";
+  // Break the text into smaller batches since the api rejects long texts
+  const maxLen = 200;
+  const delim = ".!?";
   const batches = [];
   let start = 0;
   while (start < text.length) {
@@ -83,23 +145,26 @@ export async function generate(formData: FormData) {
     batches.push(text.slice(start, end).trim());
     start = end;
   }
-
   console.log(
-    `Split text into batches of length [${batches.map((str) => str.length)}]`,
+    `Split text into batches of length [${batches.map(str => str.length)}]`,
   );
+
   console.log("Fetching TikTok API...");
-  const encoded_voice = (
-    await Promise.all(batches.map((text) => tts(text, speaker)))
-  ).join("");
+  const encoded_voice = (await Promise.all(batches.map(text => tts(text, speaker)))).join("");
 
   const fileName = "output";
-  // const fileName = batches[0].replace(/[^a-zA-Z0-9]/g, "").slice(0, 30);
-  console.log(`Writing to ${fileName}.mp3`);
+  console.log(`Writing ${encoded_voice.length} bytes to ${fileName}.mp3`);
   await fs.writeFile(
     `./public/audios/${fileName}.mp3`,
     Buffer.from(encoded_voice, "base64"),
   );
 
+  const totalDuration = encoded_voice.length / 21400;
+  console.log(`Estimated audio duration at ${totalDuration}s`);
+  const subs = align(batches, totalDuration);
+  console.log(`Writing to ${fileName}.ass`);
+  await fs.writeFile(`./public/subs/${fileName}.ass`, Buffer.from(subs));
+
   redirect(`/gen/${fileName}`);
 }
-*/
+// */
