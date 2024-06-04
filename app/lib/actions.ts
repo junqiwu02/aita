@@ -79,30 +79,32 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
   return header + dialogues.join('\n');
 }
 
+function align(batches: string[], totalDuration: number) {
+  const tokens = batches.join(" ").split(" ");
+
+  function heuristic(word: string) {
+    let dur = 1;
+    dur += word.length * 0.25;
+    dur += (/[,.!?]/).test(word) ? 1.25 : 0;
+    return dur;
+  }
+
+  let durations = tokens.map(str => heuristic(str));
+  // normalize to sum to totalDuration
+  const baseDuration = totalDuration / durations.reduce((acc, dur) => acc + dur);
+  durations = durations.map(dur => baseDuration * dur);
+
+  return ass(tokens, durations);
+}
+
 // Prod code below, just simulating generation for now
 // /*
 export async function generate(formData: FormData) {
   const batches = ["Am I the asshole for liking Miffy? I'm a 22-year-old male and for some reason, I've always had a weird affection for Miffy.","Like, I love the little white rabbit with the cute little nose and floppy ears. I know it sounds weird, but I just find her adorable.","My friends and family always give me crap about it, saying I'm too old to be liking a kid's cartoon character, and that I should be ashamed of myself. But honestly, it doesn't bother me.","Miffy is just so cute and innocent, you know? And I like that she's a bit simple and doesn't try to be all fancy or complex.","Sometimes, I'll just sit there and watch old episodes of the anime or read the comics, and just feel... happy. It's weird, I know, but I love Miffy.","But the weird thing is, my girlfriend of two years doesn't think it's cool.","She's always making fun of me when I watch Miffy with her, saying I'm being immature and that I should focus on more \"grown-up\" things. And honestly, it's starting to get on my nerves.","I feel like I'm being judged for having a simple fondness for a children's character. Is it really that weird? AITA for loving Miffy as much as I do? Or am I just being a big dork?"];
-  const tokens = batches.join(" ").split(" ");
 
-  function calcDuration(word: string) {
-    word = word.toLowerCase();
-    let count = 1;
-    // add 0.333 for each additional syllable
-    const vowelGroups = word.match(/[aeiouy]+/g);
-    count += vowelGroups ? (vowelGroups.length - 1) * 0.333 : 0;
-    // add 0.9 if it's the end of a phrase
-    count += (/[,.!?]/).test(word) ? 0.9 : 0;
-    return count;
-  }
-
-  const base_duration = 65 / tokens.reduce((acc, str) => acc + calcDuration(str), 0);
-  const durations = tokens.map(str => calcDuration(str) * base_duration);
-
-  console.log('Converting text to subtitles...');
-  const subs = ass(tokens, durations);
+  const subs = align(batches, 65);
   console.log(`Writing to output.ass`);
-  await fs.writeFile(`./public/subs/output.ass`, Buffer.from(subs),);
+  await fs.writeFile(`./public/subs/output.ass`, Buffer.from(subs));
 
   redirect(`/gen/output`);
 }
@@ -146,13 +148,12 @@ export async function generate(formData: FormData) {
   console.log(
     `Split text into batches of length [${batches.map(str => str.length)}]`,
   );
-  console.log(JSON.stringify(batches));
 
   console.log("Fetching TikTok API...");
   const encoded_voice = (await Promise.all(batches.map(text => tts(text, speaker)))).join("");
 
   const fileName = "output";
-  console.log(`Writing to ${fileName}.mp3`);
+  console.log(`Writing ${encoded_voice.length} bytes to ${fileName}.mp3`);
   await fs.writeFile(
     `./public/audios/${fileName}.mp3`,
     Buffer.from(encoded_voice, "base64"),
