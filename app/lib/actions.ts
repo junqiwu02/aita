@@ -12,7 +12,7 @@ const TIKTOK_BASE_URL =
   "https://api16-normal-useast5.us.tiktokv.com/media/api/text/speech/invoke";
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
-const CPS = 21500; // base64 encoded chars per second of audio
+const CPS = 21400; // base64 encoded chars per second of audio
 
 async function tts(text: string, speaker: string): Promise<string> {
   // prepare text for url param
@@ -121,19 +121,20 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 export async function generate(formData: FormData) {
   const title = formData.get("title");
-  const titlePrompt = title ? `the title ${title}` : "a random title"
+  const titlePrompt = title ? ` with the title ${title}` : "";
   const speaker =
     formData.get("speaker") === "female" ? FEMALE_SPEAKER : MALE_SPEAKER;
   const include = formData.getAll("include");
-  const tldr = include.includes("tldr") ? "Do " : "Do not ";
-  const edit = include.includes("edit") ? "Do " : "Do not ";
-  const update = include.includes("update") ? "Do " : "Do not ";
+  const tldr = include.includes("tldr") ? "Include a TL;DR at the bottom of the post. " : "";
+  const edit = include.includes("edit") ? "Include an edit at the bottom of the post. " : "";
+  const update = include.includes("update") ? "Include an update at the bottom of the post. " : "";
   const content =
-    `Generate a Reddit story in the form of a r/AmItheAsshole post with ${titlePrompt}. ` +
-    `Include the title as the first line of the response. Do not use asterisks or dashes for formating. ` +
-    `${tldr}Include a TL;DR to the bottom of the post. ` +
-    `${edit}Include an edit to the bottom of the post. ` +
-    `${update}Include an update to the bottom of the post.`;
+    `Generate a Reddit story in the form of a r/AmItheAsshole post${titlePrompt}. ` +
+    `Do not use asterisks or dashes for formating. ` +
+    `Include the title as the first line of the response. ` +
+    `${tldr}${edit}${update}`;
+    
+  console.log(`Prompting groq with:\n${content}`);
   const chat = await groq.chat.completions.create({
     messages: [
       {

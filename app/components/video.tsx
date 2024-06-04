@@ -82,7 +82,7 @@ export default function Video({ id }: { id: string }) {
   return loaded ? (
     <>
       <div hidden={rendered}>
-        <p className="my-4 w-[100%] text-center">Rendering your video...</p>
+        <p className="my-4 w-[100%] text-center">Rendering your video, do not leave this page.</p>
         <Progress percentage={percentage} />
       </div>
       <video
