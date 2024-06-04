@@ -28,6 +28,19 @@ export default function Form() {
         </label>
       </div>
       <div>
+        <label className="block" htmlFor="">
+          Include
+        </label>
+        <label className="p-2">
+          <input type="checkbox" name="include" value="edit" />
+          Edit
+        </label>
+        <label className="p-2">
+          <input type="checkbox" name="include" value="update" />
+          Update
+        </label>
+      </div>
+      <div>
         <button className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700">
           Generate
         </button>

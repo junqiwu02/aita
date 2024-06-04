@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 export default function Video({ id }: { id: string }) {
   const [loaded, setLoaded] = useState(false);
   const [mixed, setMixed] = useState(false);
+  const [percentage, setPercentage] = useState(0);
   const ffmpegRef = useRef(new FFmpeg());
   const videoRef = useRef(null);
   const progressRef = useRef(null);
@@ -55,9 +56,7 @@ export default function Video({ id }: { id: string }) {
     ]);
 
     ffmpeg.on("progress", ({ progress, time }) => {
-      let percentage = Math.floor(progress * 100);
-      progressRef.current.innerHTML = `Progress: ${percentage}%`;
-      console.log(`Progress: ${percentage}%`);
+      setPercentage(Math.floor(progress * 100));
     });
     
     await ffmpeg.exec([
@@ -86,11 +85,24 @@ export default function Video({ id }: { id: string }) {
     }
   }, []);
 
-  return (
+  return loaded ? (
     <>
-      <button className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700" onClick={generate} hidden={loaded}>Render!</button>
-      <p ref={progressRef} hidden={!loaded || mixed}>Progress: 0%</p>
-      <video className="h-[75vh] w-auto" ref={videoRef} hidden={!loaded || !mixed} controls></video>
+      <div hidden={mixed}>
+        <p className="w-[100%] my-4 text-center" ref={progressRef}>Rendering your video...</p>
+        <div className="w-full bg-gray-200 rounded">
+          <div className="bg-indigo-500 text-xs text-center p-0.5 leading-none rounded" style={{width: percentage}}>{percentage}%</div>
+        </div>
+      </div>
+      <video className="h-[75vh] w-auto" ref={videoRef} hidden={!mixed} controls></video>
+    </>
+  ) : (
+    <>
+      <div className="my-8 text-center w-[100%]">
+        <h1 className="text-3xl font-bold">Your video is ready!</h1>
+      </div>
+      <div>
+        <button className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700" onClick={generate}>Render</button>
+      </div>
     </>
   );
 }

@@ -114,11 +114,15 @@ export async function generate(formData: FormData) {
   const title = formData.get("title");
   const speaker =
     formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
+  const include = formData.getAll("include");
+  const edit = include.includes("edit") ? " And add an edit to the bottom of the post." : "";
+  const update = include.includes("update") ? " And add an update to the bottom of the post." : "";
+  const content = `Generate a Reddit story in the form of a r/AmItheAsshole post with the title ${title}. Include the title as the first line of the response. Do not use asterisks or dashes for formating.${edit}${update}`;
   const chat = await groq.chat.completions.create({
     messages: [
       {
         role: "user",
-        content: `Generate a Reddit story in the form of a r/AmItheAsshole post with the title ${title}. Include the title without any formatting as the first line of the response.`,
+        content: content,
       },
     ],
     model: "llama3-8b-8192",
@@ -126,7 +130,7 @@ export async function generate(formData: FormData) {
 
   const rawText = chat.choices[0]?.message?.content || "Groq Error";
   const text = rawText.replace(/\n+/g, ' '); // convert newlines into spaces for better tts
-  console.log(`Received response from Groq of length ${text.length}`);
+  console.log(`Received response from Groq:\n${text}`);
 
   // Break the text into smaller batches since the api rejects long texts
   const maxLen = 200;
@@ -153,7 +157,7 @@ export async function generate(formData: FormData) {
   const encoded_voice = (await Promise.all(batches.map(text => tts(text, speaker)))).join("");
 
   const fileName = "output";
-  console.log(`Writing ${encoded_voice.length} bytes to ${fileName}.mp3`);
+  console.log(`Writing ${encoded_voice.length} chars to ${fileName}.mp3`);
   await fs.writeFile(
     `./public/audios/${fileName}.mp3`,
     Buffer.from(encoded_voice, "base64"),
