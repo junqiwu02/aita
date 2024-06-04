@@ -9,9 +9,8 @@ export default function Video({ id }: { id: string }) {
   const [loaded, setLoaded] = useState(false);
   const [rendered, setRendered] = useState(false);
   const [percentage, setPercentage] = useState(0);
+  const [videoSrc, setVideoSrc] = useState("");
   const ffmpegRef = useRef(new FFmpeg());
-  const videoRef = useRef(null);
-  const progressRef = useRef(null);
 
   const generate = async () => {
     const ffmpeg = ffmpegRef.current;
@@ -67,9 +66,7 @@ export default function Video({ id }: { id: string }) {
       "output.mp4",
     ]);
     const data = await ffmpeg.readFile("output.mp4");
-    videoRef.current.src = URL.createObjectURL(
-      new Blob([data.buffer], { type: "video/mp4" }),
-    );
+    setVideoSrc(URL.createObjectURL(new Blob([data], { type: "video/mp4" })));
 
     setRendered(true);
   };
@@ -85,14 +82,12 @@ export default function Video({ id }: { id: string }) {
   return loaded ? (
     <>
       <div hidden={rendered}>
-        <p className="my-4 w-[100%] text-center" ref={progressRef}>
-          Rendering your video...
-        </p>
+        <p className="my-4 w-[100%] text-center">Rendering your video...</p>
         <Progress percentage={percentage} />
       </div>
       <video
         className="h-[75vh] w-auto"
-        ref={videoRef}
+        src={videoSrc}
         hidden={!rendered}
         controls
       ></video>

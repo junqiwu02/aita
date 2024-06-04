@@ -12,7 +12,7 @@ const TIKTOK_BASE_URL =
   "https://api16-normal-useast5.us.tiktokv.com/media/api/text/speech/invoke";
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
-const CPS = 21400; // base64 encoded chars per second of audio
+const CPS = 21500; // base64 encoded chars per second of audio
 
 async function tts(text: string, speaker: string): Promise<string> {
   // prepare text for url param
@@ -109,16 +109,15 @@ export async function generate(formData: FormData) {
   const speaker =
     formData.get("speaker") === "male" ? MALE_SPEAKER : FEMALE_SPEAKER;
   const include = formData.getAll("include");
-  const tldr = include.includes("tldr")
-    ? " And add a TL;DR to the bottom of the post."
-    : "";
-  const edit = include.includes("edit")
-    ? " And add an edit to the bottom of the post."
-    : "";
-  const update = include.includes("update")
-    ? " And add an update to the bottom of the post."
-    : "";
-  const content = `Generate a Reddit story in the form of a r/AmItheAsshole post with the title ${title}. Include the title as the first line of the response. Do not use asterisks or dashes for formating.${tldr}${edit}${update}`;
+  const tldr = include.includes("tldr") ? "" : "DO NOT ";
+  const edit = include.includes("edit") ? "" : "DO NOT ";
+  const update = include.includes("update") ? "" : "DO NOT ";
+  const content =
+    `Generate a Reddit story in the form of a r/AmItheAsshole post with the title ${title}. ` +
+    `Include the title as the first line of the response. DO NOT use asterisks or dashes for formating. ` +
+    `${tldr}Include a TL;DR to the bottom of the post. ` +
+    `${edit}Include an edit to the bottom of the post. ` +
+    `${update}Include an update to the bottom of the post.`;
   const chat = await groq.chat.completions.create({
     messages: [
       {
@@ -151,7 +150,9 @@ export async function generate(formData: FormData) {
     start = end;
   }
 
-  console.log(`Fetching TikTok API with batches of len [${batches.map((str) => str.length)}]`);
+  console.log(
+    `Fetching TikTok API with batches of len [${batches.map((str) => str.length)}]`,
+  );
   const encoded_voices = await Promise.all(
     batches.map((text) => tts(text, speaker)),
   );
@@ -168,7 +169,9 @@ export async function generate(formData: FormData) {
     batches,
     encoded_voices.map((str) => str.length),
   );
-  console.log(`Estimated audio duration at ${subs.split("\n").at(-1)?.slice(23, 33)}`);
+  console.log(
+    `Estimated audio duration at ${subs.split("\n").at(-1)?.slice(23, 33)}`,
+  );
   console.log(`Writing to ${fileName}.ass`);
   await fs.writeFile(`./public/subs/${fileName}.ass`, Buffer.from(subs));
 
