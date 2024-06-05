@@ -1,14 +1,27 @@
+import { useOptimistic } from "react";
 import { generate } from "../lib/actions";
+import Spinner from "./spinner";
 
 export default function Form() {
+  const [preparing, addPreparing] = useOptimistic(
+    false,
+    (currentState, optimisticValue: boolean) => optimisticValue,
+  );
+
+  const handleSubmit = async (formData: FormData) => {
+    // useOptimistic to display loading while the server action is running
+    addPreparing(true);
+    await generate(formData);
+  };
+
   return (
-    <form className="space-y-5" action={generate}>
+    <form className="space-y-5" action={handleSubmit}>
       <div>
         <label className="block" htmlFor="title">
           Title
         </label>
         <input
-          className="rounded p-2 text-black shadow w-[100%]"
+          className="w-[100%] rounded p-2 text-black shadow"
           type="text"
           name="title"
           placeholder="Leave blank for a random title"
@@ -45,9 +58,17 @@ export default function Form() {
         </label>
       </div>
       <div>
-        <button className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700">
-          Generate
-        </button>
+        {preparing ? (
+          <>
+            <p><Spinner /> Preparing your video...</p>
+          </>
+        ) : (
+          <>
+            <button className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700">
+              Generate
+            </button>
+          </>
+        )}
       </div>
     </form>
   );

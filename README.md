@@ -1,7 +1,12 @@
 ## TODO
 - [ ] User-friendly error handling
+- [ ] Better prompting for updates and drama
+- [ ] Add another option for voicemaker voices
 - [ ] Finish documentation
 - [ ] Finish the README :D
 - [ ] Rate limit guest users to 5 generations per day
 - [ ] Option to query from Reddit for stories
 - [ ] Option to share directly to Tiktok / other platforms
+- [ ] Include other bg videos like: subway surfers, slime, cooking
+- [ ] Remove edit option and add option for multiple updates
+- [ ] Remotion for fast video preview and editing
