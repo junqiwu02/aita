@@ -49,10 +49,6 @@ export default function Form() {
           TL;DR
         </label>
         <label className="p-2">
-          <input type="checkbox" name="include" value="edit" />
-          Edit
-        </label>
-        <label className="p-2">
           <input type="checkbox" name="include" value="update" />
           Update
         </label>

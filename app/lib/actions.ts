@@ -1,64 +1,12 @@
 "use server";
 
-import Groq from "groq-sdk";
 import { promises as fs } from "fs";
 import { redirect } from "next/navigation";
+import { fetchGroq, fetchTTS } from "./fetches";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
-
-const TIKTOK_BASE_URL =
-  "https://api16-normal-useast5.us.tiktokv.com/media/api/text/speech/invoke";
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
 const CPS = 21400; // base64 encoded chars per second of audio
-
-async function tts(text: string, speaker: string): Promise<string> {
-  // prepare text for url param
-  text = text.replace("+", "plus");
-  text = text.replace(/\s/g, "+");
-  text = text.replace("&", "and");
-
-  const URL = `${TIKTOK_BASE_URL}/?text_speaker=${speaker}&req_text=${text}&speaker_map_type=0&aid=1233`;
-  const headers = {
-    "User-Agent":
-      "com.zhiliaoapp.musically/2022600030 (Linux; U; Android 7.1.2; es_ES; SM-G988N; Build/NRD90M;tt-ok/3.12.13.1)",
-    Cookie: `sessionid=${process.env.TIKTOK_SESSIONID}`,
-    "Accept-Encoding": "gzip,deflate,compress",
-  };
-
-  for (let attempts = 0; attempts < 5; attempts++) {
-    try {
-      // fetch with 5s timeout
-      const res = await fetch(URL, {
-        method: "POST",
-        headers: headers,
-        signal: AbortSignal.timeout(3000),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP Error: ${res.status}`);
-      }
-
-      const data = await res.json();
-  
-      if (data?.status_code !== 0) {
-        throw new Error(`Tiktok Error: ${data?.status_msg}`);
-      }
-    
-      const encoded_voice = data?.data?.v_str;
-    
-      return encoded_voice;
-    } catch (e) {
-      console.log(e);
-      console.log('Retrying...');
-    }
-  }
-
-  console.log("Out of retries.");
-  return "";
-}
 
 function ass(batches: string[], encodedLens: number[]) {
   const header = `[Script Info]
@@ -126,32 +74,22 @@ export async function generate(formData: FormData) {
     formData.get("speaker") === "female" ? FEMALE_SPEAKER : MALE_SPEAKER;
   const include = formData.getAll("include");
   const tldr = include.includes("tldr") ? "Include a TL;DR at the bottom of the post. " : "";
-  const edit = include.includes("edit") ? "Include an edit at the bottom of the post. " : "";
-  const update = include.includes("update") ? "Include an update at the bottom of the post. " : "";
+  const update = include.includes("update") ? "Include an update at the bottom of the post that continues the story. " : "";
   const content =
     `Generate a Reddit story in the form of a r/AmItheAsshole post${titlePrompt}. ` +
+    `The story should be engaging, juicy, and full of drama. ` +
     `Do not use asterisks or dashes for formating. ` +
     `Include the title as the first line of the response. ` +
-    `${tldr}${edit}${update}`;
+    `${tldr}${update}`;
     
   console.log(`Prompting groq with:\n${content}`);
-  const chat = await groq.chat.completions.create({
-    messages: [
-      {
-        role: "user",
-        content: content,
-      },
-    ],
-    model: "llama3-8b-8192",
-  });
-
-  const rawText = chat.choices[0]?.message?.content || "Groq Error";
+  const rawText = await fetchGroq(content);
   const text = rawText.replace(/\n+/g, " "); // convert newlines into spaces for better tts
   console.log(`Received response from Groq:\n${rawText}`);
 
   // Break the text into smaller batches since the api rejects long texts
   const maxLen = 200;
-  const delim = ".!?";
+  const delim = ",.!?:";
   const batches = [];
   let start = 0;
   while (start < text.length) {
@@ -171,7 +109,7 @@ export async function generate(formData: FormData) {
     `Fetching TikTok API with batches of len [${batches.map((str) => str.length)}]`,
   );
   const encoded_voices = await Promise.all(
-    batches.map((text) => tts(text, speaker)),
+    batches.map((text) => fetchTTS(text, speaker)),
   );
   const encoded_voice = encoded_voices.join("");
 

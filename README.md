@@ -1,6 +1,5 @@
 ## TODO
 - [ ] User-friendly error handling
-- [ ] Better prompting for updates and drama
 - [ ] Add another option for voicemaker voices
 - [ ] Finish documentation
 - [ ] Finish the README :D
@@ -10,3 +9,5 @@
 - [ ] Include other bg videos like: subway surfers, slime, cooking
 - [ ] Remove edit option and add option for multiple updates
 - [ ] Remotion for fast video preview and editing
+- [ ] UI cleanup + Add light mode and use dark: tailwind directive
+- [ ] Option for multiple updates and make the last update a conclusion
