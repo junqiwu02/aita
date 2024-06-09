@@ -8,14 +8,11 @@ export default function Preview({ params }: { params: { id: string } }) {
     <Player
       component={MyComposition}
       inputProps={{ text: "World" }}
+      className="h-[75vh] w-auto"
       durationInFrames={120}
-      compositionWidth={1920}
-      compositionHeight={1080}
+      compositionWidth={720}
+      compositionHeight={1280}
       fps={30}
-      style={{
-        width: 1280,
-        height: 720,
-      }}
       controls
     />
   );
