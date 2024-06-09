@@ -3,12 +3,11 @@
 - [ ] Add another option for voicemaker voices
 - [ ] Finish documentation
 - [ ] Finish the README :D
-- [ ] Rate limit guest users to 5 generations per day
-- [ ] Option to query from Reddit for stories
+- [ ] Rate limit guest users to 2 generations per day
 - [ ] Option to share directly to Tiktok / other platforms
 - [ ] Include other bg videos like: subway surfers, slime, cooking
-- [ ] Remove edit option and add option for multiple updates
-- [ ] Remotion for fast video preview and editing
 - [ ] UI cleanup + Add light mode and use dark: tailwind directive
 - [ ] Option for multiple updates and make the last update a conclusion
 - [ ] useFfmpeg hook
+- [ ] Make advanced substation alpha parser and remotion renderer as its own library
+- [ ] Multithreaded ffmpeg
