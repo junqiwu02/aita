@@ -8,7 +8,7 @@ export default function Preview({ params }: { params: { id: string } }) {
     <>
       <Player
         component={MyComposition}
-        inputProps={{ text: "World" }}
+        inputProps={{ id: params.id }}
         durationInFrames={120}
         compositionWidth={720}
         compositionHeight={1280}

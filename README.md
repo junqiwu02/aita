@@ -9,5 +9,4 @@
 - [ ] UI cleanup + Add light mode and use dark: tailwind directive
 - [ ] Option for multiple updates and make the last update a conclusion
 - [ ] useFfmpeg hook
-- [ ] Make advanced substation alpha parser and remotion renderer as its own library
 - [ ] Multithreaded ffmpeg
