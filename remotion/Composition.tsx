@@ -1,31 +1,37 @@
+import { SubItem, fromSRT } from "@/app/lib/srt";
 import { useEffect, useState } from "react";
-import { AbsoluteFill, OffthreadVideo, Audio, useCurrentFrame } from "remotion";
+import {
+  AbsoluteFill,
+  OffthreadVideo,
+  Audio,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 
-export const MyComposition = ({ id }: { id: string}) => {
+export const MyComposition = ({ id }: { id: string }) => {
   const frame = useCurrentFrame();
-  const [text, setText] = useState('');
+  const { fps } = useVideoConfig();
+  const [subs, setSubs] = useState<SubItem[]>([]);
+
+  // find the subtitle that should be active
+  const t = frame / fps;
+  const activeSub = subs.find((item) => t >= item.start && t <= item.end);
 
   useEffect(() => {
-    const getSubs = async () => {
-      const response = await fetch(`/subs/${id}.ass`);
+    const fetchSubs = async () => {
+      const response = await fetch(`/subs/${id}.srt`);
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error(`Error fetching /subs/${id}.srt`);
       }
 
-      const ass = await response.text()
+      const srt = await response.text();
+      setSubs(fromSRT(srt));
+    };
 
-      const parsed = fromASS(ass);
-      const lines = [];
-      for (let i = 0; i < parsed.timestamps.length; i++) {
-        lines.push(parsed.timestamps[i] + parsed.texts[i]);
-      }
-      setText(lines.join(''));
-    }
+    fetchSubs();
+  }, [id]);
 
-    // getSubs();
-  }, [id])
-    
   return (
     <>
       <Audio src={`/audios/${id}.mp3`}></Audio>
@@ -33,8 +39,8 @@ export const MyComposition = ({ id }: { id: string}) => {
         <OffthreadVideo src={"/minecraft0.mp4"} muted></OffthreadVideo>
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
-        <h1 className="text-center">{text}</h1>
+        <h1 className="text-center">{activeSub?.text || ""}</h1>
       </AbsoluteFill>
     </>
-  )
+  );
 };

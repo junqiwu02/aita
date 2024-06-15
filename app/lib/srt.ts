@@ -1,4 +1,4 @@
-type SubItem = {
+export type SubItem = {
   id: number;
   start: number;
   end: number;

@@ -62,14 +62,10 @@ export async function generate(formData: FormData) {
     Buffer.from(encoded_voice, "base64"),
   );
 
-
   const items = forceAlign(batches, encoded_voices.map((str) => str.length / CPS));
   const srt = toSRT(items);
-  // console.log(
-  //   `Estimated audio duration at ${srt.split("\n").at(-1)?.slice(23, 33)}`,
-  // );
   console.log(`Writing to ${fileName}.srt`);
   await fs.writeFile(`./public/subs/${fileName}.srt`, srt);
 
-  redirect(`/gen/${fileName}`);
+  redirect(`/preview/${fileName}`);
 }

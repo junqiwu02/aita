@@ -9,7 +9,7 @@ export default function Preview({ params }: { params: { id: string } }) {
       <Player
         component={MyComposition}
         inputProps={{ id: params.id }}
-        durationInFrames={120}
+        durationInFrames={4500}
         compositionWidth={720}
         compositionHeight={1280}
         fps={30}
