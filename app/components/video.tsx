@@ -64,7 +64,7 @@ export default function Video({ id }: { id: string }) {
       // `ass=subs.ass:fontsdir=/tmp`,
       "subtitles=subs.srt" +
       ":fontsdir=/tmp" +
-      ":force_style='Fontname=Montserrat ExtraBold,Alignment=10,Shadow=1'",
+      ":force_style='Fontname=Montserrat ExtraBold,Alignment=10'",
       "-preset",
       "ultrafast",
       "output.mp4",
