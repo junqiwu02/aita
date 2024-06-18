@@ -3,69 +3,11 @@
 import { promises as fs } from "fs";
 import { redirect } from "next/navigation";
 import { fetchGroq, fetchTTS } from "./fetches";
+import { forceAlign, toSRT } from "./srt";
 
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
 const CPS = 21400; // base64 encoded chars per second of audio
-
-function ass(batches: string[], encodedLens: number[]) {
-  const header = `[Script Info]
-Title: Transcript
-ScriptType: v4.00+
-Collisions: Normal
-PlayDepth: 0
-
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Montserrat ExtraBold,20,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,2,5,10,10,10,1
-
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-`;
-
-  function toAssTime(t: number) {
-    const hr = Math.floor(t / 3600);
-    const min = Math.floor((t % 3600) / 60)
-      .toString()
-      .padStart(2, "0");
-    const sec = Math.floor(t % 60)
-      .toString()
-      .padStart(2, "0");
-    const centisec = Math.floor((t * 100) % 100)
-      .toString()
-      .padStart(2, "0");
-    return `${hr}:${min}:${sec}.${centisec}`;
-  }
-
-  function heuristic(word: string) {
-    let dur = 1;
-    dur += word.length * 0.1;
-    dur += /[,.!?]/.test(word) ? 1.5 : 0;
-    return dur;
-  }
-
-  const dialogues: string[] = [];
-  let currTime = 0;
-
-  for (let i = 0; i < batches.length; i++) {
-    // split batch into individual tokens and calc duration in seconds of each token
-    const totalDuration = encodedLens[i] / CPS;
-    const tokens = batches[i].split(" ");
-    let durations = tokens.map((str) => heuristic(str));
-    // normalize to sum to totalDuration
-    const norm = totalDuration / durations.reduce((sum, x) => sum + x);
-    durations = durations.map((dur) => norm * dur);
-
-    tokens.forEach((text, j) => {
-      const start = toAssTime(currTime);
-      const end = toAssTime(currTime + durations[j]);
-      currTime += durations[j];
-      dialogues.push(`Dialogue: 0,${start},${end},Default,,0,0,0,,${text}`);
-    });
-  }
-
-  return header + dialogues.join("\n");
-}
 
 export async function generate(formData: FormData) {
   const title = formData.get("title");
@@ -120,15 +62,10 @@ export async function generate(formData: FormData) {
     Buffer.from(encoded_voice, "base64"),
   );
 
-  const subs = ass(
-    batches,
-    encoded_voices.map((str) => str.length),
-  );
-  console.log(
-    `Estimated audio duration at ${subs.split("\n").at(-1)?.slice(23, 33)}`,
-  );
-  console.log(`Writing to ${fileName}.ass`);
-  await fs.writeFile(`./public/subs/${fileName}.ass`, Buffer.from(subs));
+  const items = forceAlign(batches, encoded_voices.map((str) => str.length / CPS));
+  const srt = toSRT(items);
+  console.log(`Writing to ${fileName}.srt`);
+  await fs.writeFile(`./public/subs/${fileName}.srt`, srt);
 
-  redirect(`/gen/${fileName}`);
+  redirect(`/preview/${fileName}`);
 }
