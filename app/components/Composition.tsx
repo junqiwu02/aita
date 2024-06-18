@@ -33,6 +33,14 @@ export const MyComposition = ({ id }: { id: string }) => {
     fetchSubs();
   }, [id]);
 
+  const textStyle = {
+    textShadow: `
+      -4px -4px 0 #000,  
+       4px -4px 0 #000,
+      -4px  4px 0 #000,
+       4px  4px 0 #000` // Combination of shadows to create outline
+  };
+
   return (
     <>
       <Audio src={`/audios/${id}.mp3`}></Audio>
@@ -40,7 +48,9 @@ export const MyComposition = ({ id }: { id: string }) => {
         <OffthreadVideo src={"/minecraft0.mp4"} muted></OffthreadVideo>
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
-        <h1 className="text-center">{activeSub?.text || ""}</h1>
+        <h1 className="text-center font-montserrat text-[48px] font-extrabold" style={textStyle}>
+          {activeSub?.text || ""}
+        </h1>
       </AbsoluteFill>
     </>
   );

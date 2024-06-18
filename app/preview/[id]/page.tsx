@@ -1,6 +1,6 @@
 "use client";
 
-import { MyComposition } from "@/remotion/Composition";
+import { MyComposition } from "@/app/components/Composition";
 import { Player } from "@remotion/player";
 
 export default function Preview({ params }: { params: { id: string } }) {
