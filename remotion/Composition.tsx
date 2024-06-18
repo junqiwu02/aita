@@ -15,6 +15,7 @@ export const MyComposition = ({ id }: { id: string }) => {
 
   // find the subtitle that should be active
   const t = frame / fps;
+  // is it possible to do this with binary search?
   const activeSub = subs.find((item) => t >= item.start && t <= item.end);
 
   useEffect(() => {

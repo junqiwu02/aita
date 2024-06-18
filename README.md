@@ -1,12 +1,2 @@
 ## TODO
-- [ ] User-friendly error handling
-- [ ] Add another option for voicemaker voices
-- [ ] Finish documentation
-- [ ] Finish the README :D
-- [ ] Rate limit guest users to 2 generations per day
-- [ ] Option to share directly to Tiktok / other platforms
-- [ ] Include other bg videos like: subway surfers, slime, cooking
-- [ ] UI cleanup + Add light mode and use dark: tailwind directive
-- [ ] Option for multiple updates and make the last update a conclusion
-- [ ] useFfmpeg hook
-- [ ] Multithreaded ffmpeg
+- [ ] Docs and README :D
