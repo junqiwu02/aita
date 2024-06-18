@@ -32,7 +32,8 @@ export default function Video({ id }: { id: string }) {
     await ffmpeg.writeFile("video.mp4", await fetchFile("/minecraft0.mp4"));
     await ffmpeg.writeFile("audio.mp3", await fetchFile("/audios/output.mp3"));
     // await ffmpeg.writeFile('subs.srt', await fetchFile('/test.srt'));
-    await ffmpeg.writeFile("subs.ass", await fetchFile("/subs/output.ass"));
+    // await ffmpeg.writeFile("subs.ass", await fetchFile("/subs/output.ass"));
+    await ffmpeg.writeFile("subs.srt", await fetchFile("/subs/output.srt"));
     await ffmpeg.writeFile(
       "tmp/font.ttf",
       await fetchFile("/Montserrat-ExtraBold.ttf"),
@@ -60,7 +61,10 @@ export default function Video({ id }: { id: string }) {
       "-i",
       "mixed.mp4",
       "-vf",
-      `ass=subs.ass:fontsdir=/tmp`,
+      // `ass=subs.ass:fontsdir=/tmp`,
+      "subtitles=subs.srt" +
+      ":fontsdir=/tmp" +
+      ":force_style='Fontname=Montserrat ExtraBold,Alignment=10'",
       "-preset",
       "ultrafast",
       "output.mp4",
