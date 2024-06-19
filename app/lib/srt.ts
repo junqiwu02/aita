@@ -60,7 +60,7 @@ ${item.text}
     .join("\n");
 }
 
-export function forceAlign(batches: string[], batchDurations: number[]) {
+export function forceAlign(batches: string[], batchDurations: number[], startTime: number) {
   function heuristic(token: string) {
     let dur = 1;
     dur += token.length * 0.1; // longer tokens have longer duration
@@ -70,7 +70,7 @@ export function forceAlign(batches: string[], batchDurations: number[]) {
 
   const out: SubItem[] = [];
   let id = 1;
-  let time = 0;
+  let time = startTime;
 
   for (let i = 0; i < batches.length; i++) {
     // split batch into individual tokens and calc proportional duration of each token
