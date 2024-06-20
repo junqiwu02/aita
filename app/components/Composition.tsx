@@ -17,8 +17,10 @@ export const MyComposition = ({ id }: { id: string }) => {
 
   const t = frame / fps;
 
-  const titleText = title && t >= title.start && t <= title.end ? title.text : "";
-  const subText = subs.find((item) => t >= item.start && t <= item.end)?.text || "";
+  const titleText =
+    title && t >= title.start && t <= title.end ? title.text : "";
+  const subText =
+    subs.find((item) => t >= item.start && t <= item.end)?.text || "";
 
   useEffect(() => {
     const fetchSubs = async () => {
@@ -45,7 +47,7 @@ export const MyComposition = ({ id }: { id: string }) => {
       -3px -3px 0 #000,  
        3px -3px 0 #000,
       -3px  3px 0 #000,
-       3px  3px 0 #000` // Combination of shadows to create outline
+       3px  3px 0 #000`, // Combination of shadows to create outline
   };
 
   return (
@@ -57,14 +59,16 @@ export const MyComposition = ({ id }: { id: string }) => {
       <AbsoluteFill>
         <Img src="/title-card.png" hidden={titleText === ""}></Img>
       </AbsoluteFill>
-      <AbsoluteFill className="justify-center px-20">
-        <h1 className="leading-8 font-montserrat text-[32px] text-black font-extrabold">
-          <br />
+      <AbsoluteFill className="justify-center">
+        <h1 className="px-20 pt-10 font-montserrat text-[32px] font-extrabold leading-8 text-black">
           {titleText}
         </h1>
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
-        <h1 className="text-center font-montserrat text-[48px] font-extrabold" style={subStyle}>
+        <h1
+          className="text-center font-montserrat text-[48px] font-extrabold"
+          style={subStyle}
+        >
           {subText}
         </h1>
       </AbsoluteFill>
