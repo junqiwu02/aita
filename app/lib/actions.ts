@@ -19,6 +19,7 @@ export async function generate(formData: FormData) {
   const update = include.includes("update") ? "Include an update at the bottom of the post that continues the story. " : "";
   const content =
     `Generate a Reddit story in the form of a r/AmItheAsshole post${titlePrompt}. ` +
+    `The story should be in the perspective of a ${speaker} speaker.` +
     `The story should be engaging, juicy, and full of drama. ` +
     `Do not use asterisks or dashes for formating. ` +
     `Include the title as the first line of the response. ` +
