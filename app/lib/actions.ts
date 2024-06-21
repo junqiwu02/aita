@@ -4,6 +4,7 @@ import { promises as fs } from "fs";
 import { redirect } from "next/navigation";
 import { fetchGroq, fetchTTS } from "./fetches";
 import { forceAlign, toSRT } from "./srt";
+import { lenSplit } from "./util";
 
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
@@ -19,7 +20,7 @@ export async function generate(formData: FormData) {
   const update = include.includes("update") ? "Include an update at the bottom of the post that continues the story. " : "";
   const content =
     `Generate a Reddit story in the form of a r/AmItheAsshole post${titlePrompt}. ` +
-    `The story should be in the perspective of a ${speaker} speaker.` +
+    `The story should be from the perspective of a ${speaker} speaker.` +
     `The story should be engaging, juicy, and full of drama. ` +
     `Do not use asterisks or dashes for formating. ` +
     `Include the title as the first line of the response. ` +
@@ -34,22 +35,8 @@ export async function generate(formData: FormData) {
   const body = pgraphs.slice(1).join(" "); // convert newlines into spaces for better tts
 
   // Break the body into smaller batches since the api rejects long texts
-  const maxLen = 200;
-  const delim = ",.!?:";
-  const batches = [title];
-  let start = 0;
-  while (start < body.length) {
-    let end = Math.min(start + maxLen, body.length);
-    while (start < end - 1 && !delim.includes(body[end - 1])) {
-      end -= 1;
-    }
-    if (start === end - 1) {
-      // no delim found, just take entire section
-      end = Math.min(start + maxLen, body.length);
-    }
-    batches.push(body.slice(start, end).trim());
-    start = end;
-  }
+  const batches = lenSplit(body, ",.!?:", 200);
+  batches.unshift(title);
 
   console.log(
     `Fetching TikTok API with batches of len [${batches.map((str) => str.length)}]`,

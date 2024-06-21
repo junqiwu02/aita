@@ -5,6 +5,7 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useRef, useState } from "react";
 import Progress from "./progress";
 import { SubItem, fromSRT } from "../lib/srt";
+import { lenSplit } from "../lib/util";
 
 export default function Video({ id }: { id: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -15,6 +16,8 @@ export default function Video({ id }: { id: string }) {
   const [title, setTitle] = useState<SubItem>();
 
   const generate = async () => {
+    setLoaded(true);
+
     const ffmpeg = ffmpegRef.current;
     const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
     ffmpeg.on("log", ({ message }) => {
@@ -28,8 +31,6 @@ export default function Video({ id }: { id: string }) {
         "application/wasm",
       ),
     });
-
-    setLoaded(true);
 
     await ffmpeg.writeFile("video.mp4", await fetchFile("/test.mp4"));
     await ffmpeg.writeFile("audio.mp3", await fetchFile("/audios/output.mp3"));
@@ -63,6 +64,9 @@ export default function Video({ id }: { id: string }) {
     await ffmpeg.writeFile("title-card.png", await fetchFile("/title-card.png"));
     const titleDuration = title?.end || 0;
     const titleText = title?.text.replaceAll("'", "") || "";
+    // split the title into multiple lines for formatting
+    const titleWithBreaks = lenSplit(titleText, " ", 35).join("\n");
+
     await ffmpeg.exec([
       "-i",
       "mixed.mp4",
@@ -71,11 +75,11 @@ export default function Video({ id }: { id: string }) {
       "-filter_complex",
       "[1][0]scale2ref[title][video];" + // scale title to video
       `[video][title]overlay=0:0:enable='lt(t,${titleDuration})'[titled];` + // overlay for titleDuration seconds
-      `[titled]drawtext=text='${titleText}'` + // title as drawtext since subs don't have easy customization of line and vertical spacing
+      `[titled]drawtext=text='${titleWithBreaks}'` + // title as drawtext since subs don't have easy customization of line and vertical spacing
       ":fontfile=/tmp/font.ttf" +
       ":fontsize=20" + 
-      ":y=(h-text_h)/2" + 
-      ":x=40" +
+      ":y=(h-text_h)/2+10" + 
+      ":x=50" +
       `:enable='lt(t,${titleDuration})'[sub1];` +
       // "[titled]subtitles=title.srt" + // title as subs (old method)
       // ":fontsdir=/tmp" +

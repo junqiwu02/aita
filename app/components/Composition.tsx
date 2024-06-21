@@ -44,10 +44,10 @@ export const MyComposition = ({ id }: { id: string }) => {
 
   const subStyle = {
     textShadow: `
-      -3px -3px 0 #000,  
-       3px -3px 0 #000,
-      -3px  3px 0 #000,
-       3px  3px 0 #000`, // Combination of shadows to create outline
+      -4px -4px 0 #000,  
+       4px -4px 0 #000,
+      -4px  4px 0 #000,
+       4px  4px 0 #000`, // Combination of shadows to create outline
   };
 
   return (
