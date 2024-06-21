@@ -78,7 +78,7 @@ export default function Video({ id }: { id: string }) {
       `[titled]drawtext=text='${titleWithBreaks}'` + // title as drawtext since subs don't have easy customization of line and vertical spacing
       ":fontfile=/tmp/font.ttf" +
       ":fontsize=20" + 
-      ":y=(h-text_h)/2+10" + 
+      ":y=(h-text_h)/2+15" + 
       ":x=50" +
       `:enable='lt(t,${titleDuration})'[sub1];` +
       // "[titled]subtitles=title.srt" + // title as subs (old method)
