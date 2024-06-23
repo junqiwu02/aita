@@ -1,5 +1,6 @@
-import { SubItem, fromSRT } from "@/app/lib/srt";
-import { useEffect, useState } from "react";
+"use client";
+
+import { SubItem } from "@/app/lib/srt";
 import {
   AbsoluteFill,
   OffthreadVideo,
@@ -9,11 +10,9 @@ import {
   Img,
 } from "remotion";
 
-export const MyComposition = ({ id }: { id: string }) => {
+export const PreviewComposition = ({ id, title, subs }: { id: string, title: SubItem, subs: SubItem[] }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const [title, setTitle] = useState<SubItem>();
-  const [subs, setSubs] = useState<SubItem[]>([]);
 
   const t = frame / fps;
 
@@ -21,26 +20,6 @@ export const MyComposition = ({ id }: { id: string }) => {
     title && t >= title.start && t <= title.end ? title.text : "";
   const subText =
     subs.find((item) => t >= item.start && t <= item.end)?.text || "";
-
-  useEffect(() => {
-    const fetchSubs = async () => {
-      const titleResponse = await fetch(`/subs/${id}_title.srt`);
-      if (!titleResponse.ok) {
-        throw new Error(`Error fetching /subs/${id}_title.srt`);
-      }
-      const title = await titleResponse.text();
-      setTitle(fromSRT(title)[0]);
-
-      const response = await fetch(`/subs/${id}.srt`);
-      if (!response.ok) {
-        throw new Error(`Error fetching /subs/${id}.srt`);
-      }
-      const srt = await response.text();
-      setSubs(fromSRT(srt));
-    };
-
-    fetchSubs();
-  }, [id]);
 
   const subStyle = {
     textShadow: `

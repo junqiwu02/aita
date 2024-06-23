@@ -34,8 +34,6 @@ export default function Video({ id }: { id: string }) {
 
     await ffmpeg.writeFile("video.mp4", await fetchFile("/test.mp4"));
     await ffmpeg.writeFile("audio.mp3", await fetchFile("/audios/output.mp3"));
-    // await ffmpeg.writeFile('subs.srt', await fetchFile('/test.srt'));
-    // await ffmpeg.writeFile("subs.ass", await fetchFile("/subs/output.ass"));
     await ffmpeg.writeFile("subs.srt", await fetchFile("/subs/output.srt"));
     await ffmpeg.writeFile(
       "tmp/font.ttf",
@@ -81,9 +79,6 @@ export default function Video({ id }: { id: string }) {
       ":y=(h-text_h)/2+15" + 
       ":x=50" +
       `:enable='lt(t,${titleDuration})'[sub1];` +
-      // "[titled]subtitles=title.srt" + // title as subs (old method)
-      // ":fontsdir=/tmp" +
-      // ":force_style='PrimaryColour=&H000000&,Outline=0,FontSize=10,Fontname=Montserrat ExtraBold,Alignment=9,MarginL=40'[sub1];" +
       "[sub1]subtitles=subs.srt" + // body subs
       ":fontsdir=/tmp" +
       ":force_style='Fontname=Montserrat ExtraBold,Alignment=10'",
