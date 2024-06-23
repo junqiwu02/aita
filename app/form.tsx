@@ -1,6 +1,6 @@
 import { useOptimistic } from "react";
-import { generate } from "../lib/actions";
-import Spinner from "./spinner";
+import { generate } from "./lib/actions";
+import Spinner from "./components/spinner";
 
 export default function Form() {
   const [preparing, addPreparing] = useOptimistic(

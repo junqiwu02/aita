@@ -30,7 +30,7 @@ export function useFFmpeg(id: string): [boolean, number, string, (() => Promise<
     });
 
     // copy over audio
-    await ffmpeg.writeFile("video.mp4", await fetchFile("/test.mp4"));
+    await ffmpeg.writeFile("video.mp4", await fetchFile("/minecraft0.mp4"));
     await ffmpeg.writeFile("audio.mp3", await fetchFile(`/audios/${id}.mp3`));
     await ffmpeg.exec([
       "-i",

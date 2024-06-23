@@ -1,7 +1,7 @@
 "use client";
 
-import { useFFmpeg } from "../lib/hooks";
-import Progress from "./progress";
+import { useFFmpeg } from "../../lib/hooks";
+import Progress from "../../components/progress";
 
 export default function Renderer({ id }: { id: string }) {
   const [rendering, percentage, resURL, render] = useFFmpeg(id);
