@@ -10,7 +10,17 @@ import {
   Img,
 } from "remotion";
 
-export const PreviewComposition = ({ id, title, titleDuration, subs }: { id: string, title: string, titleDuration: number, subs: SubItem[] }) => {
+export const Composition = ({
+  id,
+  title,
+  titleDuration,
+  subs,
+}: {
+  id: string;
+  title: string;
+  titleDuration: number;
+  subs: SubItem[];
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -38,7 +48,10 @@ export const PreviewComposition = ({ id, title, titleDuration, subs }: { id: str
         <Img src="/title-card.png" hidden={titleText === ""}></Img>
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
-        <h1 className="pl-[60px] pt-10 font-montserrat text-[32px] font-extrabold leading-8 text-black">
+        <h1
+          className="pl-[75px] pt-[40px] font-montserrat text-[30px] font-extrabold leading-8 text-black"
+          style={{ whiteSpace: "pre-line" }} // make \n line breaks
+        >
           {titleText}
         </h1>
       </AbsoluteFill>

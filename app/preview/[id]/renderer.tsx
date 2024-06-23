@@ -10,7 +10,7 @@ export default function Renderer({ id, title, titleDuration }: { id: string, tit
     <>
       <div>
         <p className="mb-2 w-[100%] text-center">
-          Rendering your video, do not leave this page.
+          Rendering... do not leave this page.
         </p>
         <Progress percentage={percentage} />
       </div>
@@ -30,7 +30,7 @@ export default function Renderer({ id, title, titleDuration }: { id: string, tit
           className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700"
           onClick={render}
         >
-          Render
+          Export
         </button>
       )}
     </>

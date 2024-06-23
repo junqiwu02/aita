@@ -1,5 +1,5 @@
 import { lenSplit } from "@/app/lib/util";
-import { PreviewComposition } from "./preview";
+import { Composition } from "./composition";
 import Renderer from "./renderer";
 import { fromSRT } from "@/app/lib/srt";
 import { Player } from "@remotion/player";
@@ -29,7 +29,7 @@ export default async function Preview({ params }: { params: { id: string } }) {
     <>
       <div className="block">
         <Player
-          component={PreviewComposition}
+          component={Composition}
           inputProps={{ id: id, title: titleText, titleDuration: titleDuration, subs: subs }}
           durationInFrames={durationInFrames}
           compositionWidth={720}
