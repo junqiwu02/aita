@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Dialog from "./components/dialog";
+import Dialog from "./dialog";
 
 export default function Home() {
   const [isOpen, setIsOpen] = useState(false);

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { fetchGroq, fetchTTS } from "./fetches";
 import { forceAlign, toSRT } from "./srt";
 import { lenSplit } from "./util";
+import { revalidatePath } from "next/cache";
 
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
@@ -64,5 +65,6 @@ export async function generate(formData: FormData) {
   console.log(`Writing to ${fileName}.srt`);
   await fs.writeFile(`./public/subs/${fileName}.srt`, srt);
 
+  revalidatePath(`/preview/${fileName}`);
   redirect(`/preview/${fileName}`);
 }

@@ -1,5 +1,6 @@
-import { SubItem, fromSRT } from "@/app/lib/srt";
-import { useEffect, useState } from "react";
+"use client";
+
+import { SubItem } from "@/app/lib/srt";
 import {
   AbsoluteFill,
   OffthreadVideo,
@@ -9,38 +10,25 @@ import {
   Img,
 } from "remotion";
 
-export const MyComposition = ({ id }: { id: string }) => {
+export const Composition = ({
+  id,
+  title,
+  titleDuration,
+  subs,
+}: {
+  id: string;
+  title: string;
+  titleDuration: number;
+  subs: SubItem[];
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const [title, setTitle] = useState<SubItem>();
-  const [subs, setSubs] = useState<SubItem[]>([]);
 
   const t = frame / fps;
 
-  const titleText =
-    title && t >= title.start && t <= title.end ? title.text : "";
+  const titleText = t <= titleDuration ? title : "";
   const subText =
     subs.find((item) => t >= item.start && t <= item.end)?.text || "";
-
-  useEffect(() => {
-    const fetchSubs = async () => {
-      const titleResponse = await fetch(`/subs/${id}_title.srt`);
-      if (!titleResponse.ok) {
-        throw new Error(`Error fetching /subs/${id}_title.srt`);
-      }
-      const title = await titleResponse.text();
-      setTitle(fromSRT(title)[0]);
-
-      const response = await fetch(`/subs/${id}.srt`);
-      if (!response.ok) {
-        throw new Error(`Error fetching /subs/${id}.srt`);
-      }
-      const srt = await response.text();
-      setSubs(fromSRT(srt));
-    };
-
-    fetchSubs();
-  }, [id]);
 
   const subStyle = {
     textShadow: `
@@ -60,7 +48,10 @@ export const MyComposition = ({ id }: { id: string }) => {
         <Img src="/title-card.png" hidden={titleText === ""}></Img>
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
-        <h1 className="px-20 pt-10 font-montserrat text-[32px] font-extrabold leading-8 text-black">
+        <h1
+          className="pl-[75px] pt-[40px] font-montserrat text-[30px] font-extrabold leading-8 text-black"
+          style={{ whiteSpace: "pre-line" }} // make \n line breaks
+        >
           {titleText}
         </h1>
       </AbsoluteFill>
