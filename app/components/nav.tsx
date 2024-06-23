@@ -1,14 +1,17 @@
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/ui/mode-toggle";
 import Link from "next/link";
 
 export default function Nav() {
   return (
-    <nav className="flex justify-between p-10">
+    <nav className="flex justify-between px-10 py-4 items-center">
       <Link href="/" className="font-bold">
         AITA.io
       </Link>
-      <button className="cursor-not-allowed rounded border bg-transparent px-4 py-2 font-bold hover:bg-neutral-700">
-        Login
-      </button>
+      <div className="">
+        <ModeToggle></ModeToggle>
+        <Button disabled className="ml-2">Login</Button>
+      </div>
     </nav>
   );
 }

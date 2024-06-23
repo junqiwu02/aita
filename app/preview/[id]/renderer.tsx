@@ -2,9 +2,22 @@
 
 import { useFFmpeg } from "../../lib/hooks";
 import Progress from "../../components/progress";
+import { Button } from "@/components/ui/button";
 
-export default function Renderer({ id, title, titleDuration }: { id: string, title: string, titleDuration: number }) {
-  const [rendering, percentage, resURL, render] = useFFmpeg(id, title, titleDuration);
+export default function Renderer({
+  id,
+  title,
+  titleDuration,
+}: {
+  id: string;
+  title: string;
+  titleDuration: number;
+}) {
+  const [rendering, percentage, resURL, render] = useFFmpeg(
+    id,
+    title,
+    titleDuration,
+  );
 
   return rendering ? (
     <>
@@ -18,20 +31,13 @@ export default function Renderer({ id, title, titleDuration }: { id: string, tit
   ) : (
     <>
       {resURL ? (
-        <a
-          className="mx-4 rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700"
-          download="aita"
-          href={resURL}
-        >
-          Download
-        </a>
+        <Button asChild>
+          <a download="aita" href={resURL}>
+            Download
+          </a>
+        </Button>
       ) : (
-        <button
-          className="rounded bg-indigo-500 px-4 py-2 font-bold shadow-lg hover:bg-indigo-700"
-          onClick={render}
-        >
-          Export
-        </button>
+        <Button onClick={render}>Export</Button>
       )}
     </>
   );
