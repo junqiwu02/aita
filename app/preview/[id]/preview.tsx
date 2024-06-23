@@ -10,14 +10,13 @@ import {
   Img,
 } from "remotion";
 
-export const PreviewComposition = ({ id, title, subs }: { id: string, title: SubItem, subs: SubItem[] }) => {
+export const PreviewComposition = ({ id, title, titleDuration, subs }: { id: string, title: string, titleDuration: number, subs: SubItem[] }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const t = frame / fps;
 
-  const titleText =
-    title && t >= title.start && t <= title.end ? title.text : "";
+  const titleText = t <= titleDuration ? title : "";
   const subText =
     subs.find((item) => t >= item.start && t <= item.end)?.text || "";
 
@@ -39,7 +38,7 @@ export const PreviewComposition = ({ id, title, subs }: { id: string, title: Sub
         <Img src="/title-card.png" hidden={titleText === ""}></Img>
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
-        <h1 className="px-20 pt-10 font-montserrat text-[32px] font-extrabold leading-8 text-black">
+        <h1 className="pl-[60px] pt-10 font-montserrat text-[32px] font-extrabold leading-8 text-black">
           {titleText}
         </h1>
       </AbsoluteFill>

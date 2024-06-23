@@ -1,10 +1,8 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useEffect, useRef, useState } from "react";
-import { fromSRT } from "./srt";
-import { lenSplit } from "./util";
 
-export function useFFmpeg(id: string): [boolean, number, string, (() => Promise<void>)] {
+export function useFFmpeg(id: string, title: string, titleDuration: number): [boolean, number, string, (() => Promise<void>)] {
   const [rendering, setRendering] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [resURL, setResURL] = useState("");
@@ -30,7 +28,7 @@ export function useFFmpeg(id: string): [boolean, number, string, (() => Promise<
     });
 
     // copy over audio
-    await ffmpeg.writeFile("video.mp4", await fetchFile("/minecraft0.mp4"));
+    await ffmpeg.writeFile("video.mp4", await fetchFile("/test.mp4"));
     await ffmpeg.writeFile("audio.mp3", await fetchFile(`/audios/${id}.mp3`));
     await ffmpeg.exec([
       "-i",
@@ -51,18 +49,7 @@ export function useFFmpeg(id: string): [boolean, number, string, (() => Promise<
       setPercentage(Math.floor(progress * 100));
     });
 
-    const titleResponse = await fetch(`/subs/${id}_title.srt`);
-    if (!titleResponse.ok) {
-      throw new Error(`Error fetching /subs/${id}_title.srt`);
-    }
-    console.log(titleResponse);
-    const title = fromSRT(await titleResponse.text())[0];
     await ffmpeg.writeFile("title-card.png", await fetchFile("/title-card.png"));
-    const titleDuration = title?.end || 0;
-    const titleText = title?.text.replaceAll("'", "") || "";
-    // split the title into multiple lines for formatting
-    const titleWithBreaks = lenSplit(titleText, " ", 35).join("\n");
-
     await ffmpeg.writeFile(
       "tmp/font.ttf",
       await fetchFile("/Montserrat-ExtraBold.ttf"),
@@ -77,7 +64,7 @@ export function useFFmpeg(id: string): [boolean, number, string, (() => Promise<
       "-filter_complex",
       "[1][0]scale2ref[title][video];" + // scale title to video
       `[video][title]overlay=0:0:enable='lt(t,${titleDuration})'[titled];` + // overlay for titleDuration seconds
-      `[titled]drawtext=text='${titleWithBreaks}':` + // title as drawtext since subs don't have easy customization of line and vertical spacing
+      `[titled]drawtext=text='${title}':` + // title as drawtext since subs don't have easy customization of line and vertical spacing
       "fontfile=/tmp/font.ttf:" +
       "fontsize=20:" + 
       "y=(h-text_h)/2+15:" + 

@@ -1,3 +1,4 @@
+import { lenSplit } from "@/app/lib/util";
 import { PreviewComposition } from "./preview";
 import Renderer from "./renderer";
 import { fromSRT } from "@/app/lib/srt";
@@ -11,7 +12,10 @@ export default async function Preview({ params }: { params: { id: string } }) {
   if (!titleResponse.ok) {
     throw new Error(`Error fetching /subs/${id}_title.srt`);
   }
-  const title = fromSRT(await titleResponse.text())[0];
+  const titleItem = fromSRT(await titleResponse.text())[0];
+  // santize and split the title into lines for ffmpeg
+  const titleText = lenSplit(titleItem.text.replaceAll("'", ""), " ", 35).join("\n");
+  const titleDuration = titleItem.end;
 
   const response = await fetch(`${process.env.BASE_URL}/subs/${id}.srt`);
   if (!response.ok) {
@@ -26,7 +30,7 @@ export default async function Preview({ params }: { params: { id: string } }) {
       <div className="block">
         <Player
           component={PreviewComposition}
-          inputProps={{ id: id, title: title, subs: subs }}
+          inputProps={{ id: id, title: titleText, titleDuration: titleDuration, subs: subs }}
           durationInFrames={durationInFrames}
           compositionWidth={720}
           compositionHeight={1280}
@@ -35,7 +39,7 @@ export default async function Preview({ params }: { params: { id: string } }) {
           controls
         />
         <div className="flex justify-center py-2">
-          <Renderer id={id} />
+          <Renderer id={id} title={titleText} titleDuration={titleDuration} />
         </div>
       </div>
     </>

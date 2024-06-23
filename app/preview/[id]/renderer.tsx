@@ -3,8 +3,8 @@
 import { useFFmpeg } from "../../lib/hooks";
 import Progress from "../../components/progress";
 
-export default function Renderer({ id }: { id: string }) {
-  const [rendering, percentage, resURL, render] = useFFmpeg(id);
+export default function Renderer({ id, title, titleDuration }: { id: string, title: string, titleDuration: number }) {
+  const [rendering, percentage, resURL, render] = useFFmpeg(id, title, titleDuration);
 
   return rendering ? (
     <>
