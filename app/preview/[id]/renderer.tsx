@@ -1,7 +1,7 @@
 "use client";
 
+import { Progress } from "@/components/ui/progress";
 import { useFFmpeg } from "../../lib/hooks";
-import Progress from "../../components/progress";
 import { Button } from "@/components/ui/button";
 
 export default function Renderer({
@@ -25,7 +25,7 @@ export default function Renderer({
         <p className="mb-2 w-[100%] text-center">
           Rendering... do not leave this page.
         </p>
-        <Progress percentage={percentage} />
+        <Progress value={percentage} />
       </div>
     </>
   ) : (

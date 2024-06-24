@@ -10,7 +10,7 @@ export default function Nav() {
       </Link>
       <div className="">
         <ModeToggle></ModeToggle>
-        <Button disabled className="ml-2">Login</Button>
+        <Button className="ml-2">Login</Button>
       </div>
     </nav>
   );
