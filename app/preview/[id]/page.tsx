@@ -14,7 +14,7 @@ export default async function Preview({ params }: { params: { id: string } }) {
   }
   const titleItem = fromSRT(await titleResponse.text())[0];
   // santize and split the title into lines for ffmpeg
-  const titleText = lenSplit(titleItem.text.replaceAll("'", ""), " ", 35).join("\n");
+  const titleText = lenSplit(titleItem.text.replace(/[':]/g, ""), " ", 35).join("\n");
   const titleDuration = titleItem.end;
 
   const response = await fetch(`${process.env.BASE_URL}/subs/${id}.srt`);
