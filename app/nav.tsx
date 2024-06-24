@@ -8,9 +8,9 @@ export default function Nav() {
       <Link href="/" className="font-bold">
         AITA.io
       </Link>
-      <div className="">
+      <div className="flex items-center">
         <ModeToggle></ModeToggle>
-        <Button className="ml-2">Login</Button>
+        <Button variant="outline" className="ml-2">Login</Button>
       </div>
     </nav>
   );
