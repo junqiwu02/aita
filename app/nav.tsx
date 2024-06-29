@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import Link from "next/link";
+import UserIcon from "./user-icon";
 
 export default function Nav() {
   return (
@@ -10,7 +10,9 @@ export default function Nav() {
       </Link>
       <div className="flex items-center">
         <ModeToggle></ModeToggle>
-        <Button variant="outline" className="ml-2">Login</Button>
+        <div className="ml-2">
+          <UserIcon></UserIcon>
+        </div>
       </div>
     </nav>
   );
