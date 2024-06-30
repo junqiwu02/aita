@@ -1,6 +1,6 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useFFmpeg(id: string, title: string, titleDuration: number): [boolean, number, string, (() => Promise<void>)] {
   const [rendering, setRendering] = useState(false);
@@ -91,4 +91,47 @@ export function useFFmpeg(id: string, title: string, titleDuration: number): [bo
   }, [ffmpeg]);
 
   return [rendering, percentage, resURL, render];
+}
+
+export function useTransformers() {
+  const [running, setRunning] = useState(false);
+  const [percentage, setPercentage] = useState(false);
+
+  // Create a reference to the worker object.
+  const worker = useRef<Worker | null>(null);
+
+  // We use the `useEffect` hook to set up the worker as soon as the `App` component is mounted.
+  useEffect(() => {
+    if (!worker.current) {
+      // Create the worker if it does not yet exist.
+      worker.current = new Worker(new URL('./lib/worker.js', import.meta.url), {
+        type: 'module'
+      });
+    }
+
+    // Create a callback function for messages from the worker thread.
+    const onMessageReceived = (e: MessageEvent) => {
+      console.log(`Received message from worker: ${e.data.status}`);
+      switch (e.data.status) {
+        case 'initiate':
+          break;
+        case 'ready':
+          break;
+        case 'complete':
+          break;
+      }
+    };
+
+    // Attach the callback function as an event listener.
+    worker.current.addEventListener('message', onMessageReceived);
+
+    // Define a cleanup function for when the component is unmounted.
+    return () => worker.current?.removeEventListener('message', onMessageReceived);
+  });
+
+  const classify = useCallback((text: string) => {
+    if (worker.current) {
+      worker.current.postMessage({ text });
+    }
+  }, []);
 }

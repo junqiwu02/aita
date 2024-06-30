@@ -23,7 +23,7 @@ export default function Renderer({
     <>
       <div>
         <p className="mb-2 w-[100%] text-center">
-          Rendering... do not leave this page.
+          Rendering... do not close this page.
         </p>
         <Progress value={percentage} />
       </div>
