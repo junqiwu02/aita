@@ -1,4 +1,4 @@
-import { auth, signIn, signOut } from "@/auth";
+import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -7,14 +7,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 
 export default async function UserIcon() {
   const session = await auth();
-
-  const onSignIn = async () => {
-    "use server";
-    await signIn("google");
-  };
 
   const onSignOut = async () => {
     "use server";
@@ -48,11 +44,9 @@ export default async function UserIcon() {
     </>
   ) : (
     <>
-      <form action={onSignIn}>
-        <Button type="submit" variant="outline">
-          Login
-        </Button>
-      </form>
+      <Button variant="outline">
+        <Link href="/signin">Sign In</Link>
+      </Button>
     </>
   );
 }
