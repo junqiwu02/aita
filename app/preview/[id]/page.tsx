@@ -3,6 +3,7 @@ import { Composition } from "./composition";
 import Renderer from "./renderer";
 import { fromSRT } from "@/app/lib/srt";
 import { Player } from "@remotion/player";
+import Whisper from "./whisper";
 
 export default async function Preview({ params }: { params: { id: string } }) {
   const fps = 30;
@@ -40,6 +41,7 @@ export default async function Preview({ params }: { params: { id: string } }) {
         />
         <div className="flex justify-center py-2">
           <Renderer id={id} title={titleText} titleDuration={titleDuration} />
+          <Whisper></Whisper>
         </div>
       </div>
     </>

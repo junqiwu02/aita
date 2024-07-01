@@ -104,7 +104,7 @@ export function useTransformers() {
   useEffect(() => {
     if (!worker.current) {
       // Create the worker if it does not yet exist.
-      worker.current = new Worker(new URL('./lib/worker.js', import.meta.url), {
+      worker.current = new Worker(new URL('./worker.js', import.meta.url), {
         type: 'module'
       });
     }
@@ -114,10 +114,13 @@ export function useTransformers() {
       console.log(`Received message from worker: ${e.data.status}`);
       switch (e.data.status) {
         case 'initiate':
+          console.log(`Intitiated`);
           break;
         case 'ready':
+          console.log(`Ready`)
           break;
         case 'complete':
+          console.log(`Complete: ${JSON.stringify(e.data)}`);
           break;
       }
     };
@@ -129,9 +132,24 @@ export function useTransformers() {
     return () => worker.current?.removeEventListener('message', onMessageReceived);
   });
 
-  const classify = useCallback((text: string) => {
+  const transcribe = useCallback(async (text: string) => {
     if (worker.current) {
-      worker.current.postMessage({ text });
+      console.log('posting message');
+
+    // webworkers do not support AudioContext, so we must decode the audio file first in the main thread
+    const audioCTX = new window.AudioContext({
+        sampleRate: 16000
+    });
+    const arrayBuffer = await (await fetch(text)).arrayBuffer();
+    const decoded = await audioCTX.decodeAudioData(arrayBuffer);
+    console.log(`NUM CHANNELS: ${decoded.numberOfChannels}`);
+    const audio = decoded.getChannelData(0);
+
+    console.log(`AUDIO DATA: ${audio}`);
+
+      worker.current.postMessage({ audio });
     }
   }, []);
+
+  return [transcribe];
 }
