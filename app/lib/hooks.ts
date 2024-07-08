@@ -100,9 +100,12 @@ export function useFFmpeg(
   return [rendering, percentage, resURL, render];
 }
 
-export function useTransformers() {
+export type Chunk = { text: string; timestamp: [number, number | null] };
+
+export function useTransformers(): [Chunk[], (url: string) => Promise<void>] {
   const [running, setRunning] = useState(false);
   const [percentage, setPercentage] = useState(false);
+  const [chunks, setChunks] = useState<Chunk[]>([]);
 
   // Create a reference to the worker object.
   const worker = useRef<Worker | null>(null);
@@ -118,19 +121,18 @@ export function useTransformers() {
 
     // Create a callback function for messages from the worker thread.
     const onMessageReceived = (e: MessageEvent) => {
-      console.log(`Received message from worker: ${e.data.status}`);
-      switch (e.data.status) {
+      const message = e.data;
+      console.log(`Received message from worker: ${message.status}`);
+      switch (message.status) {
         case "initiate":
-          console.log(`Intitiated`);
           break;
         case "ready":
-          console.log(`Ready`);
           break;
         case "update":
-          console.log(`Received data: ${JSON.stringify(e.data)}`);
+          setChunks(message.data[1].chunks);
           break;
         case "complete":
-          console.log(`Complete: ${JSON.stringify(e.data)}`);
+          setChunks(message.data.chunks);
           break;
       }
     };
@@ -143,13 +145,13 @@ export function useTransformers() {
       worker.current?.removeEventListener("message", onMessageReceived);
   });
 
-  const transcribe = useCallback(async (text: string) => {
+  const transcribe = useCallback(async (url: string) => {
     if (worker.current) {
       // webworkers do not support AudioContext, so we must decode the audio file first in the main thread
       const audioCTX = new window.AudioContext({
         sampleRate: 16000,
       });
-      const arrayBuffer = await (await fetch(text)).arrayBuffer();
+      const arrayBuffer = await (await fetch(url)).arrayBuffer();
       const decoded = await audioCTX.decodeAudioData(arrayBuffer);
       const audio = decoded.getChannelData(0);
 
@@ -157,5 +159,5 @@ export function useTransformers() {
     }
   }, []);
 
-  return [transcribe];
+  return [chunks, transcribe];
 }

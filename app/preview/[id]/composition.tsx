@@ -1,5 +1,6 @@
 "use client";
 
+import { Chunk } from "@/app/lib/hooks";
 import { SubItem } from "@/app/lib/srt";
 import {
   AbsoluteFill,
@@ -19,7 +20,8 @@ export const Composition = ({
   id: string;
   title: string;
   titleDuration: number;
-  subs: SubItem[];
+  // subs: SubItem[];
+  subs: Chunk[];
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -28,7 +30,9 @@ export const Composition = ({
 
   const titleText = t <= titleDuration ? title : "";
   const subText =
-    subs.find((item) => t >= item.start && t <= item.end)?.text || "";
+    subs.find((item) => t >= item.timestamp[0] && item.timestamp[1] !== null && t <= item.timestamp[1])?.text || "";
+  // const subText =
+  //   subs.find((item) => t >= item.start && t <= item.end)?.text || "";
 
   const subStyle = {
     textShadow: `
