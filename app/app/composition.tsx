@@ -1,6 +1,6 @@
 "use client";
 
-import { GeneratedContent } from "@/app/audio-provider";
+import { GeneratedContent, useAudioContext } from "@/app/audio-provider";
 import { useMemo } from "react";
 import {
   AbsoluteFill,
@@ -11,9 +11,10 @@ import {
   Img,
 } from "remotion";
 
-export const Composition = ({ content }: { content: GeneratedContent }) => {
+export const Composition = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { content } = useAudioContext();
   const { title, body, titleAudio, bodyAudio } = content;
 
   const audioURL = useMemo(() => {

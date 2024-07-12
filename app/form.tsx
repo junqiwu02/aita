@@ -31,7 +31,7 @@ export default function Form() {
     const res = await generate(formData);
     setContent(res);
 
-    router.push('/preview/test');
+    router.push('/app');
   };
 
   return (

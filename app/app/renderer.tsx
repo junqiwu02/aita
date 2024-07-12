@@ -1,12 +1,11 @@
 "use client";
 
 import { Progress } from "@/components/ui/progress";
-import { useFFmpeg } from "../../lib/hooks";
+import { useFFmpeg } from "../lib/hooks";
 import { Button } from "@/components/ui/button";
-import { GeneratedContent } from "@/app/audio-provider";
 
-export default function Renderer({ content }: { content: GeneratedContent }) {
-  const [rendering, percentage, resURL, render] = useFFmpeg(content);
+export default function Renderer() {
+  const [rendering, percentage, resURL, render] = useFFmpeg();
 
   return rendering ? (
     <>

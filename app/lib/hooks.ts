@@ -2,16 +2,15 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toSRT } from "./srt";
-import { GeneratedContent } from "../audio-provider";
+import { useAudioContext } from "../audio-provider";
 
-export function useFFmpeg(
-  content: GeneratedContent
-): [boolean, number, string, () => Promise<void>] {
+export function useFFmpeg(): [boolean, number, string, () => Promise<void>] {
   const [rendering, setRendering] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [resURL, setResURL] = useState("");
   const ffmpegRef = useRef(new FFmpeg());
 
+  const { content } = useAudioContext();
   const { title, body, titleAudio, bodyAudio } = content;
 
   const ffmpeg = ffmpegRef.current;

@@ -7,13 +7,13 @@ import { useAudioContext } from "@/app/audio-provider";
 import { useRouter } from "next/navigation";
 
 
-export default function Preview({ params }: { params: { id: string } }) {
+export default function Preview() {
   const fps = 30;
 
   const { content } = useAudioContext();
   const router = useRouter();  
 
-  const { title, body, titleAudio, bodyAudio } = content;
+  const { title, body } = content;
 
   if (!title) {
     // no generated content, redirect to home
@@ -37,7 +37,7 @@ export default function Preview({ params }: { params: { id: string } }) {
           controls
         />
         <div className="flex justify-center py-2">
-          <Renderer content={content} />
+          <Renderer />
           {/* <Button onClick={() => {transcribe('/audios/output.mp3')}}>Transcribe</Button> */}
         </div>
       </div>
