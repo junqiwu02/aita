@@ -1,16 +1,18 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toSRT } from "./srt";
+import { GeneratedContent } from "../audio-provider";
 
 export function useFFmpeg(
-  id: string,
-  title: string,
-  titleDuration: number,
+  content: GeneratedContent
 ): [boolean, number, string, () => Promise<void>] {
   const [rendering, setRendering] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [resURL, setResURL] = useState("");
   const ffmpegRef = useRef(new FFmpeg());
+
+  const { title, body, titleAudio, bodyAudio } = content;
 
   const ffmpeg = ffmpegRef.current;
   const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
@@ -31,9 +33,10 @@ export function useFFmpeg(
       ),
     });
 
+
     // copy over audio
     await ffmpeg.writeFile("video.mp4", await fetchFile("/test.mp4"));
-    await ffmpeg.writeFile("audio.mp3", await fetchFile(`/audios/${id}.mp3`));
+    await ffmpeg.writeFile("audio.mp3", Buffer.from(titleAudio + bodyAudio, "base64"));
     await ffmpeg.exec([
       "-i",
       "video.mp4",
@@ -61,7 +64,9 @@ export function useFFmpeg(
       "tmp/font.ttf",
       await fetchFile("/Montserrat-ExtraBold.ttf"),
     );
-    await ffmpeg.writeFile("subs.srt", await fetchFile("/subs/output.srt"));
+    // await ffmpeg.writeFile("subs.srt", await fetchFile("/subs/output.srt"));
+    const srt = toSRT(body);
+    await ffmpeg.writeFile("subs.srt", srt);
 
     await ffmpeg.exec([
       "-i",
@@ -70,13 +75,13 @@ export function useFFmpeg(
       "title-card.png",
       "-filter_complex",
       "[1][0]scale2ref[title][video];" + // scale title to video
-        `[video][title]overlay=0:0:enable='lt(t,${titleDuration})'[titled];` + // overlay for titleDuration seconds
-        `[titled]drawtext=text='${title}':` + // title as drawtext since subs don't have easy customization of line and vertical spacing
+        `[video][title]overlay=0:0:enable='lt(t,${title.timestamp[1]})'[titled];` + // overlay for titleDuration seconds
+        `[titled]drawtext=text='${title.text}':` + // title as drawtext since subs don't have easy customization of line and vertical spacing
         "fontfile=/tmp/font.ttf:" +
         "fontsize=20:" +
         "y=(h-text_h)/2+15:" +
         "x=50:" +
-        `enable='lt(t,${titleDuration})'[sub1];` +
+        `enable='lt(t,${title.timestamp[1]})'[sub1];` +
         "[sub1]subtitles=subs.srt:" + // body subs
         "fontsdir=/tmp:" +
         "force_style='Fontname=Montserrat ExtraBold,Alignment=10'",

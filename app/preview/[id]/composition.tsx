@@ -1,7 +1,7 @@
 "use client";
 
-import { Chunk } from "@/app/lib/hooks";
-import { SubItem } from "@/app/lib/srt";
+import { GeneratedContent } from "@/app/audio-provider";
+import { useMemo } from "react";
 import {
   AbsoluteFill,
   OffthreadVideo,
@@ -11,40 +11,32 @@ import {
   Img,
 } from "remotion";
 
-export const Composition = ({
-  id,
-  title,
-  titleDuration,
-  subs,
-}: {
-  id: string;
-  title: string;
-  titleDuration: number;
-  // subs: SubItem[];
-  subs: Chunk[];
-}) => {
+export const Composition = ({ content }: { content: GeneratedContent }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { title, body, titleAudio, bodyAudio } = content;
+
+  const audioURL = useMemo(() => {
+    return "data:audio/wav;base64," + titleAudio + bodyAudio;
+  }, [titleAudio, bodyAudio]);
 
   const t = frame / fps;
-
-  const titleText = t <= titleDuration ? title : "";
+  const titleText = t <= title.timestamp[1] ? title.text : "";
   const subText =
-    subs.find((item) => t >= item.timestamp[0] && item.timestamp[1] !== null && t <= item.timestamp[1])?.text || "";
-  // const subText =
-  //   subs.find((item) => t >= item.start && t <= item.end)?.text || "";
+    body.find((item) => t >= item.timestamp[0] && t <= item.timestamp[1])
+      ?.text || "";
 
   const subStyle = {
     textShadow: `
       -4px -4px 0 #000,  
        4px -4px 0 #000,
       -4px  4px 0 #000,
-       4px  4px 0 #000`, // Combination of shadows to create outline
+       4px  4px 0 #000`,
   };
 
   return (
     <>
-      <Audio src={`/audios/${id}.mp3`}></Audio>
+      <Audio src={audioURL}></Audio>
       <AbsoluteFill>
         <OffthreadVideo src="/minecraft0.mp4" muted></OffthreadVideo>
       </AbsoluteFill>
@@ -53,7 +45,7 @@ export const Composition = ({
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
         <h1
-          className="pl-[75px] pt-[40px] font-montserrat text-[30px] font-extrabold leading-8 text-black"
+          className="font-montserrat pl-[75px] pt-[40px] text-[30px] font-extrabold leading-8 text-black"
           style={{ whiteSpace: "pre-line" }} // make \n line breaks
         >
           {titleText}
@@ -61,7 +53,7 @@ export const Composition = ({
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
         <h1
-          className="text-center font-montserrat text-[48px] font-extrabold"
+          className="font-montserrat text-center text-[48px] font-extrabold"
           style={subStyle}
         >
           {subText}

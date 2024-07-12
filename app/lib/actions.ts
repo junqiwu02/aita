@@ -1,17 +1,16 @@
 "use server";
 
 import { promises as fs } from "fs";
-import { redirect } from "next/navigation";
 import { fetchGroq, fetchTTS } from "./fetches";
-import { forceAlign, toSRT } from "./srt";
+import { forceAlign, SubItem } from "./srt";
 import { lenSplit } from "./util";
-import { revalidatePath } from "next/cache";
+import { GeneratedContent } from "../audio-provider";
 
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
 const CPS = 21400; // base64 encoded chars per second of audio
 
-export async function generate(formData: FormData) {
+export async function generate(formData: FormData): Promise<GeneratedContent> {
   const userTitle = formData.get("title");
   const titlePrompt = userTitle ? ` with the title ${userTitle}` : "";
   const speaker =
@@ -26,9 +25,9 @@ export async function generate(formData: FormData) {
     `Include the title as the first line of the response. ` +
     `${tldr}${update}`;
     
-  console.log(`Prompting groq with:\n${content}`);
+  console.log(`Prompting groq with:\n${content}\n\n`);
   const rawText = await fetchGroq(content);
-  console.log(`Received response from Groq:\n${rawText}`);
+  console.log(`Received response from Groq:\n${rawText}\n\n`);
 
   const pgraphs = rawText.split("\n");
   const title = pgraphs[0]; // first line is the title
@@ -36,35 +35,26 @@ export async function generate(formData: FormData) {
 
   // Break the body into smaller batches since the api rejects long texts
   const batches = lenSplit(body, ",.!?:", 200);
-  batches.unshift(title);
-
   console.log(
     `Fetching TikTok API with batches of len [${batches.map((str) => str.length)}]`,
   );
-  const encoded_voices = await Promise.all(
+  const titleAudio = await fetchTTS(title, speaker);
+  const bodyAudios = await Promise.all(
     batches.map((text) => fetchTTS(text, speaker)),
   );
-  const encoded_voice = encoded_voices.join("");
+  const combinedBodyAudio = bodyAudios.join("");
+  
+  // sanitize title for ffmpeg
+  const sanitizedTitle = lenSplit(title.replace(/[':]/g, ""), " ", 35).join("\n");
 
-  const fileName = "output";
-  console.log(`Writing ${encoded_voice.length} chars to ${fileName}.mp3`);
-  await fs.writeFile(
-    `./public/audios/${fileName}.mp3`,
-    Buffer.from(encoded_voice, "base64"),
-  );
+  const titleTime = titleAudio.length / CPS;
+  const titleItem: SubItem = { text: sanitizedTitle, timestamp: [0, titleTime] };
+  const bodyItems = forceAlign(batches, bodyAudios.map((str) => str.length / CPS), titleTime);
 
-  // generate srt file for just the title
-  const titleTime = encoded_voices[0].length / CPS
-  const titleItem = { id: 0, start: 0, end: titleTime, text: title };
-  const titleSrt = toSRT([titleItem]);
-  console.log(`Writing to ${fileName}.srt`);
-  await fs.writeFile(`./public/subs/${fileName}_title.srt`, titleSrt);
+  const res = { title: titleItem, body: bodyItems, titleAudio: titleAudio, bodyAudio: combinedBodyAudio };
 
-  const items = forceAlign(batches.slice(1), encoded_voices.slice(1).map((str) => str.length / CPS), titleTime);
-  const srt = toSRT(items);
-  console.log(`Writing to ${fileName}.srt`);
-  await fs.writeFile(`./public/subs/${fileName}.srt`, srt);
+  // await fs.writeFile('./public/test.json', JSON.stringify(res));
+  // const res = JSON.parse((await fs.readFile('./public/test.json')).toString());
 
-  revalidatePath(`/preview/${fileName}`);
-  redirect(`/preview/${fileName}`);
+  return res;
 }

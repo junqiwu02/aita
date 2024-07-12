@@ -3,21 +3,10 @@
 import { Progress } from "@/components/ui/progress";
 import { useFFmpeg } from "../../lib/hooks";
 import { Button } from "@/components/ui/button";
+import { GeneratedContent } from "@/app/audio-provider";
 
-export default function Renderer({
-  id,
-  title,
-  titleDuration,
-}: {
-  id: string;
-  title: string;
-  titleDuration: number;
-}) {
-  const [rendering, percentage, resURL, render] = useFFmpeg(
-    id,
-    title,
-    titleDuration,
-  );
+export default function Renderer({ content }: { content: GeneratedContent }) {
+  const [rendering, percentage, resURL, render] = useFFmpeg(content);
 
   return rendering ? (
     <>

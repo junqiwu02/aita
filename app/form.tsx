@@ -14,17 +14,24 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useAudioContext } from "./audio-provider";
+import { useRouter } from "next/navigation";
 
 export default function Form() {
   const [preparing, addPreparing] = useOptimistic(
     false,
     (currentState, optimisticValue: boolean) => optimisticValue,
   );
+  const { setContent } = useAudioContext();
+  const router = useRouter();
 
   const onSubmit = async (formData: FormData) => {
     // useOptimistic to display loading while the server action is running
     addPreparing(true);
-    await generate(formData);
+    const res = await generate(formData);
+    setContent(res);
+
+    router.push('/preview/test');
   };
 
   return (
