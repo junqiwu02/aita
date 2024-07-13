@@ -22,14 +22,18 @@ export default function Form() {
     false,
     (currentState, optimisticValue: boolean) => optimisticValue,
   );
-  const { setContent } = useAudioContext();
+  const { setTitle, setBody, setTitleAudio, setBodyAudio } = useAudioContext();
   const router = useRouter();
 
   const onSubmit = async (formData: FormData) => {
     // useOptimistic to display loading while the server action is running
     addPreparing(true);
-    const res = await generate(formData);
-    setContent(res);
+    
+    const { title, body, titleAudio, bodyAudio } = await generate(formData);
+    setTitle(title);
+    setBody(body);
+    setTitleAudio(titleAudio);
+    setBodyAudio(bodyAudio);
 
     router.push('/app');
   };
@@ -48,7 +52,7 @@ export default function Form() {
         <Label className="block" htmlFor="speaker">
           Speaker
         </Label>
-        <Select name="speaker">
+        <Select name="speaker" required>
           <SelectTrigger>
             <SelectValue placeholder="Choose a speaker" />
           </SelectTrigger>

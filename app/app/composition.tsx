@@ -1,6 +1,6 @@
 "use client";
 
-import { GeneratedContent, useAudioContext } from "@/app/audio-provider";
+import { useAudioContext } from "@/app/audio-provider";
 import { useMemo } from "react";
 import {
   AbsoluteFill,
@@ -14,8 +14,7 @@ import {
 export const Composition = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const { content } = useAudioContext();
-  const { title, body, titleAudio, bodyAudio } = content;
+  const { title, body, titleAudio, bodyAudio } = useAudioContext();
 
   const audioURL = useMemo(() => {
     return "data:audio/wav;base64," + titleAudio + bodyAudio;

@@ -1,7 +1,7 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { toSRT } from "./srt";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { SubItem, toSRT } from "./srt";
 import { useAudioContext } from "../audio-provider";
 
 export function useFFmpeg(): [boolean, number, string, () => Promise<void>] {
@@ -10,8 +10,7 @@ export function useFFmpeg(): [boolean, number, string, () => Promise<void>] {
   const [resURL, setResURL] = useState("");
   const ffmpegRef = useRef(new FFmpeg());
 
-  const { content } = useAudioContext();
-  const { title, body, titleAudio, bodyAudio } = content;
+  const { title, body, titleAudio, bodyAudio } = useAudioContext();
 
   const ffmpeg = ffmpegRef.current;
   const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
@@ -104,12 +103,9 @@ export function useFFmpeg(): [boolean, number, string, () => Promise<void>] {
   return [rendering, percentage, resURL, render];
 }
 
-export type Chunk = { text: string; timestamp: [number, number | null] };
-
-export function useTransformers(): [Chunk[], (url: string) => Promise<void>] {
-  const [running, setRunning] = useState(false);
-  const [percentage, setPercentage] = useState(false);
-  const [chunks, setChunks] = useState<Chunk[]>([]);
+export function useTranscriber(): [number, () => Promise<void>] {
+  const [percentage, setPercentage] = useState(0);
+  const { title, setBody, bodyAudio } = useAudioContext();
 
   // Create a reference to the worker object.
   const worker = useRef<Worker | null>(null);
@@ -129,14 +125,24 @@ export function useTransformers(): [Chunk[], (url: string) => Promise<void>] {
       console.log(`Received message from worker: ${message.status}`);
       switch (message.status) {
         case "initiate":
+          setPercentage(5);
           break;
         case "ready":
+          setPercentage(10);
           break;
         case "update":
-          setChunks(message.data[1].chunks);
+          setPercentage(Math.min(90, percentage + 10));
           break;
         case "complete":
-          setChunks(message.data.chunks);
+          // delay every word in the transcript by the title duration
+          const transcript: SubItem[] = message.data.chunks;
+          const offset = title.timestamp[1];
+          for (const item of transcript) {
+            item.timestamp[0] += offset;
+            item.timestamp[1] += offset;
+          }
+          setBody(transcript);
+          setPercentage(100);
           break;
       }
     };
@@ -149,19 +155,30 @@ export function useTransformers(): [Chunk[], (url: string) => Promise<void>] {
       worker.current?.removeEventListener("message", onMessageReceived);
   });
 
-  const transcribe = useCallback(async (url: string) => {
+  const transcribe = useCallback(async () => {
+    function base64ToArrayBuffer(base64: string) {
+      const binaryString = window.atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+
     if (worker.current) {
       // webworkers do not support AudioContext, so we must decode the audio file first in the main thread
       const audioCTX = new window.AudioContext({
         sampleRate: 16000,
       });
-      const arrayBuffer = await (await fetch(url)).arrayBuffer();
-      const decoded = await audioCTX.decodeAudioData(arrayBuffer);
+      // const arrayBuffer = await bodyAudio.arrayBuffer();
+      const decoded = await audioCTX.decodeAudioData(base64ToArrayBuffer(bodyAudio));
       const audio = decoded.getChannelData(0);
 
       worker.current.postMessage({ audio });
     }
-  }, []);
+  }, [bodyAudio]);
 
-  return [chunks, transcribe];
+  return [percentage, transcribe];
 }

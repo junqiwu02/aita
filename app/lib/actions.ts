@@ -4,13 +4,12 @@ import { promises as fs } from "fs";
 import { fetchGroq, fetchTTS } from "./fetches";
 import { forceAlign, SubItem } from "./srt";
 import { lenSplit } from "./util";
-import { GeneratedContent } from "../audio-provider";
 
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
 const CPS = 21400; // base64 encoded chars per second of audio
 
-export async function generate(formData: FormData): Promise<GeneratedContent> {
+export async function generate(formData: FormData): Promise<{title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string}> {
   // const userTitle = formData.get("title");
   // const titlePrompt = userTitle ? ` with the title """${userTitle}"""` : "";
   // const speaker =

@@ -5,17 +5,19 @@ import Renderer from "./renderer";
 import { Player } from "@remotion/player";
 import { useAudioContext } from "@/app/audio-provider";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useTranscriber } from "../lib/hooks";
+import { Progress } from "@/components/ui/progress";
 
 
 export default function Preview() {
   const fps = 30;
 
-  const { content } = useAudioContext();
-  const router = useRouter();  
+  const { title, body } = useAudioContext();
+  const [ transcriptionPercentage, transcribe ] = useTranscriber();
+  const router = useRouter();
 
-  const { title, body } = content;
-
-  if (!title) {
+  if (!title.text) {
     // no generated content, redirect to home
     router.push('/');
     return;
@@ -28,7 +30,6 @@ export default function Preview() {
       <div className="block">
         <Player
           component={Composition}
-          inputProps={{ content: content }}
           durationInFrames={durationInFrames}
           compositionWidth={720}
           compositionHeight={1280}
@@ -38,7 +39,8 @@ export default function Preview() {
         />
         <div className="flex justify-center py-2">
           <Renderer />
-          {/* <Button onClick={() => {transcribe('/audios/output.mp3')}}>Transcribe</Button> */}
+          <Button onClick={() => {transcribe()}}>Transcribe</Button>
+          <Progress value={transcriptionPercentage} />
         </div>
       </div>
     </>

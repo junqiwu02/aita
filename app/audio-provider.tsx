@@ -3,23 +3,25 @@
 import React, { createContext, useContext, useState } from "react";
 import { SubItem } from "./lib/srt";
 
-export type GeneratedContent = {
-  title: SubItem;
-  body: SubItem[];
-  titleAudio: string;
-  bodyAudio: string;
-};
-
 const AudioContext = createContext({
-  content: {} as GeneratedContent,
-  setContent: (content: GeneratedContent) => {},
+  title: {} as SubItem,
+  setTitle: (title: SubItem) => {},
+  body: [] as SubItem[],
+  setBody: (body: SubItem[]) => {},
+  titleAudio: "",
+  setTitleAudio: (titleAudio: string) => {},
+  bodyAudio: "",
+  setBodyAudio: (bodyAudio: string) => {},
 });
 
 export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
-  const [content, setContent] = useState({} as GeneratedContent);
+  const [title, setTitle] = useState({} as SubItem);
+  const [body, setBody] = useState([] as SubItem[]);
+  const [titleAudio, setTitleAudio] = useState("");
+  const [bodyAudio, setBodyAudio] = useState("");
 
   return (
-    <AudioContext.Provider value={{ content, setContent }}>
+    <AudioContext.Provider value={{ title, setTitle, body, setBody, titleAudio, setTitleAudio, bodyAudio, setBodyAudio }}>
       {children}
     </AudioContext.Provider>
   );
