@@ -1,25 +1,23 @@
 "use client";
 
 import { Composition } from "./composition";
-import Renderer from "./renderer";
 import { Player } from "@remotion/player";
-import { useAudioContext } from "@/app/audio-provider";
+import { useContent } from "@/app/content-provider";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useTranscriber } from "../lib/hooks";
 import { Progress } from "@/components/ui/progress";
-
+import { useRenderer } from "../renderer-provider";
 
 export default function Preview() {
   const fps = 30;
 
-  const { title, body } = useAudioContext();
-  const [ transcriptionPercentage, transcribe ] = useTranscriber();
+  const { title, body } = useContent();
   const router = useRouter();
+  const { resURL, progress } = useRenderer();
 
   if (!title.text) {
     // no generated content, redirect to home
-    router.push('/');
+    router.push("/");
     return;
   }
 
@@ -38,9 +36,20 @@ export default function Preview() {
           controls
         />
         <div className="flex justify-center py-2">
-          <Renderer />
-          <Button onClick={() => {transcribe()}}>Transcribe</Button>
-          <Progress value={transcriptionPercentage} />
+          {resURL ? (
+            <Button asChild>
+              <a download="aita-download" href={resURL}>
+                Download
+              </a>
+            </Button>
+          ) : (
+            <div>
+              <p className="mb-2 w-[100%] text-center">
+                Rendering... do not close this page.
+              </p>
+              <Progress value={progress} />
+            </div>
+          )}
         </div>
       </div>
     </>

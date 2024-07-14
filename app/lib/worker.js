@@ -42,6 +42,11 @@ self.addEventListener("message", async (event) => {
         status: "update",
       });
     },
+    callback_function: () => {
+      self.postMessage({
+        status: "progress",
+      });
+    }
   });
 
   self.postMessage({

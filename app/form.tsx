@@ -14,15 +14,17 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useAudioContext } from "./audio-provider";
+import { useContent } from "./content-provider";
 import { useRouter } from "next/navigation";
+import { useRenderer } from "./renderer-provider";
 
 export default function Form() {
   const [preparing, addPreparing] = useOptimistic(
     false,
     (currentState, optimisticValue: boolean) => optimisticValue,
   );
-  const { setTitle, setBody, setTitleAudio, setBodyAudio } = useAudioContext();
+  const { setTitle, setBody, setTitleAudio, setBodyAudio } = useContent();
+  const { run } = useRenderer();
   const router = useRouter();
 
   const onSubmit = async (formData: FormData) => {
@@ -32,9 +34,11 @@ export default function Form() {
     const { title, body, titleAudio, bodyAudio } = await generate(formData);
     setTitle(title);
     setBody(body);
+    // setBody([{text: "TEST", timestamp: [5, 30]}])
     setTitleAudio(titleAudio);
     setBodyAudio(bodyAudio);
 
+    run(title, body, titleAudio, bodyAudio);
     router.push('/app');
   };
 

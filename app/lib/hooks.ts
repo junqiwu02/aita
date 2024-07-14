@@ -1,21 +1,19 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SubItem, toSRT } from "./srt";
-import { useAudioContext } from "../audio-provider";
+import { useContent } from "../content-provider";
 
-export function useFFmpeg(): [boolean, number, string, () => Promise<void>] {
+export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => Promise<void>] {
   const [rendering, setRendering] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [resURL, setResURL] = useState("");
   const ffmpegRef = useRef(new FFmpeg());
 
-  const { title, body, titleAudio, bodyAudio } = useAudioContext();
-
   const ffmpeg = ffmpegRef.current;
   const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
-  const render = async () => {
+  const render = async (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => {
     setRendering(true);
 
     ffmpeg.on("log", ({ message }) => {
@@ -103,9 +101,9 @@ export function useFFmpeg(): [boolean, number, string, () => Promise<void>] {
   return [rendering, percentage, resURL, render];
 }
 
-export function useTranscriber(): [number, () => Promise<void>] {
+export function useTranscriber(): [number, (audioData: string) => Promise<void>] {
   const [percentage, setPercentage] = useState(0);
-  const { title, setBody, bodyAudio } = useAudioContext();
+  const { title, setBody } = useContent();
 
   // Create a reference to the worker object.
   const worker = useRef<Worker | null>(null);
@@ -155,7 +153,7 @@ export function useTranscriber(): [number, () => Promise<void>] {
       worker.current?.removeEventListener("message", onMessageReceived);
   });
 
-  const transcribe = useCallback(async () => {
+  const transcribe = useCallback(async (audioData: string) => {
     function base64ToArrayBuffer(base64: string) {
       const binaryString = window.atob(base64);
       const len = binaryString.length;
@@ -173,12 +171,21 @@ export function useTranscriber(): [number, () => Promise<void>] {
         sampleRate: 16000,
       });
       // const arrayBuffer = await bodyAudio.arrayBuffer();
-      const decoded = await audioCTX.decodeAudioData(base64ToArrayBuffer(bodyAudio));
+      const decoded = await audioCTX.decodeAudioData(base64ToArrayBuffer(audioData));
       const audio = decoded.getChannelData(0);
 
       worker.current.postMessage({ audio });
+
+      // wait for the worker to finish before returning
+      await new Promise((resolve, reject) => {
+        worker.current?.addEventListener("message", (e: MessageEvent) => {
+          if (e.data.status === "complete") {
+            resolve("Worker completed");
+          }
+        });
+      });
     }
-  }, [bodyAudio]);
+  }, []);
 
   return [percentage, transcribe];
 }

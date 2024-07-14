@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { SubItem } from "./lib/srt";
 
-const AudioContext = createContext({
+const ContentContext = createContext({
   title: {} as SubItem,
   setTitle: (title: SubItem) => {},
   body: [] as SubItem[],
@@ -14,23 +14,23 @@ const AudioContext = createContext({
   setBodyAudio: (bodyAudio: string) => {},
 });
 
-export const AudioProvider = ({ children }: { children: React.ReactNode }) => {
+export const ContentProvider = ({ children }: { children: React.ReactNode }) => {
   const [title, setTitle] = useState({} as SubItem);
   const [body, setBody] = useState([] as SubItem[]);
   const [titleAudio, setTitleAudio] = useState("");
   const [bodyAudio, setBodyAudio] = useState("");
 
   return (
-    <AudioContext.Provider value={{ title, setTitle, body, setBody, titleAudio, setTitleAudio, bodyAudio, setBodyAudio }}>
+    <ContentContext.Provider value={{ title, setTitle, body, setBody, titleAudio, setTitleAudio, bodyAudio, setBodyAudio }}>
       {children}
-    </AudioContext.Provider>
+    </ContentContext.Provider>
   );
 };
 
-export const useAudioContext = () => {
-  const context = useContext(AudioContext);
+export const useContent = () => {
+  const context = useContext(ContentContext);
   if (context === undefined) {
-    throw new Error("useAudioContext must be used within an AudioProvider");
+    throw new Error("useContent must be used within a ContentProvider");
   }
   return context;
 };
