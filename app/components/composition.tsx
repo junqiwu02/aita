@@ -1,6 +1,6 @@
 "use client";
 
-import { useContent } from "@/app/content-provider";
+import { useContent } from "@/app/providers/content-provider";
 import { useMemo } from "react";
 import {
   AbsoluteFill,

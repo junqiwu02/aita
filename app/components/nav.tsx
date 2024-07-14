@@ -1,6 +1,6 @@
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import Link from "next/link";
-import UserIcon from "./user-icon";
+import UserIcon from "@/app/components/user-icon";
 
 export default function Nav() {
   return (

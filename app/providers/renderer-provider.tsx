@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useCallback, useContext } from "react";
-import { useFFmpeg, useTranscriber } from "./lib/hooks";
-import { SubItem } from "./lib/srt";
+import { useFFmpeg } from "../lib/hooks";
+import { SubItem } from "../lib/srt";
 
 const RendererContext = createContext({
   progress: 0,

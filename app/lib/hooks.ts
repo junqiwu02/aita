@@ -2,7 +2,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SubItem, toSRT } from "./srt";
-import { useContent } from "../content-provider";
+import { useContent } from "@/app/providers/content-provider";
 
 export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => Promise<void>] {
   const [rendering, setRendering] = useState(false);
@@ -31,7 +31,7 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
 
 
     // copy over audio
-    await ffmpeg.writeFile("video.mp4", await fetchFile("/minecraft0.mp4"));
+    await ffmpeg.writeFile("video.mp4", await fetchFile("/test.mp4"));
     await ffmpeg.writeFile("audio.mp3", Buffer.from(titleAudio + bodyAudio, "base64"));
     await ffmpeg.exec([
       "-i",

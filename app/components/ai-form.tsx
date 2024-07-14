@@ -1,7 +1,7 @@
 "use client";
 
 import { useOptimistic } from "react";
-import { generate } from "./lib/actions";
+import { generate } from "../lib/actions";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,11 +14,11 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useContent } from "./content-provider";
+import { useContent } from "../providers/content-provider";
 import { useRouter } from "next/navigation";
-import { useRenderer } from "./renderer-provider";
+import { useRenderer } from "../providers/renderer-provider";
 
-export default function Form() {
+export default function AIForm() {
   const [preparing, addPreparing] = useOptimistic(
     false,
     (currentState, optimisticValue: boolean) => optimisticValue,

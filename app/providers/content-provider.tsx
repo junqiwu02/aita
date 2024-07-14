@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import { SubItem } from "./lib/srt";
+import { SubItem } from "@/app/lib/srt";
 
 const ContentContext = createContext({
   title: {} as SubItem,
