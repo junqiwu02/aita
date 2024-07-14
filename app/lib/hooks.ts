@@ -31,7 +31,7 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
 
 
     // copy over audio
-    await ffmpeg.writeFile("video.mp4", await fetchFile("/test.mp4"));
+    await ffmpeg.writeFile("video.mp4", await fetchFile("/minecraft0.mp4"));
     await ffmpeg.writeFile("audio.mp3", Buffer.from(titleAudio + bodyAudio, "base64"));
     await ffmpeg.exec([
       "-i",
@@ -101,7 +101,7 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
   return [rendering, percentage, resURL, render];
 }
 
-export function useTranscriber(): [number, (audioData: string) => Promise<void>] {
+export function useTranscriber(): [number, (audioData: string) => Promise<SubItem[]>] {
   const [percentage, setPercentage] = useState(0);
   const { title, setBody } = useContent();
 
@@ -177,14 +177,18 @@ export function useTranscriber(): [number, (audioData: string) => Promise<void>]
       worker.current.postMessage({ audio });
 
       // wait for the worker to finish before returning
-      await new Promise((resolve, reject) => {
+      const transcript: SubItem[] = await new Promise((resolve, reject) => {
         worker.current?.addEventListener("message", (e: MessageEvent) => {
           if (e.data.status === "complete") {
-            resolve("Worker completed");
+            resolve(e.data.data.chunks);
           }
         });
       });
+
+      return transcript;
     }
+
+    return [];
   }, []);
 
   return [percentage, transcribe];

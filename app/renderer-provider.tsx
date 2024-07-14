@@ -22,8 +22,8 @@ export const RendererProvider = ({
   );
 
   const run = useCallback(async (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => {
-    await transcribe(bodyAudio);
-    await render(title, body, titleAudio, bodyAudio);
+    const transcript = await transcribe(bodyAudio);
+    await render(title, transcript, titleAudio, bodyAudio);
   }, [transcribe, render]);
 
   return (
