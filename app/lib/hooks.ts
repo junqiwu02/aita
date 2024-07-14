@@ -101,6 +101,9 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
   return [rendering, percentage, resURL, render];
 }
 
+/**
+ * @deprecated
+ */
 export function useTranscriber(): [number, (audioData: string) => Promise<SubItem[]>] {
   const [percentage, setPercentage] = useState(0);
   const { title, setBody } = useContent();
