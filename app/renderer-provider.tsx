@@ -15,16 +15,20 @@ export const RendererProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [transcriptionPercentage, transcribe] = useTranscriber();
+  // const [transcriptionPercentage, transcribe] = useTranscriber();
   const [rendering, renderPercentage, resURL, render] = useFFmpeg();
-  const progress = Math.floor(
-    0.5 * transcriptionPercentage + 0.5 * renderPercentage,
-  );
+  // const progress = Math.floor(
+  //   0.5 * transcriptionPercentage + 0.5 * renderPercentage,
+  // );
+  const progress = renderPercentage;
 
+  // const run = useCallback(async (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => {
+  //   const transcript = await transcribe(bodyAudio);
+  //   await render(title, transcript, titleAudio, bodyAudio);
+  // }, [transcribe, render]);
   const run = useCallback(async (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => {
-    const transcript = await transcribe(bodyAudio);
-    await render(title, transcript, titleAudio, bodyAudio);
-  }, [transcribe, render]);
+    await render(title, body, titleAudio, bodyAudio);
+  }, [render]);
 
   return (
     <RendererContext.Provider value={{ progress, resURL, run }}>
