@@ -1,8 +1,6 @@
 export type SubItem = {
-  id: number;
-  start: number;
-  end: number;
   text: string;
+  timestamp: [number, number];
 };
 
 function strToTime(s: string) {
@@ -39,10 +37,8 @@ export function fromSRT(data: string) {
     const text = lines[i + 2];
     // i + 3 is an empty line
     out.push({
-      id: id,
-      start: start,
-      end: end,
       text: text,
+      timestamp: [start, end]
     });
   }
 
@@ -52,8 +48,8 @@ export function fromSRT(data: string) {
 export function toSRT(data: SubItem[]) {
   return data
     .map(
-      (item) => `${item.id}
-${timeToStr(item.start)} --> ${timeToStr(item.end)}
+      (item, idx) => `${idx}
+${timeToStr(item.timestamp[0])} --> ${timeToStr(item.timestamp[1])}
 ${item.text}
 `,
     )
@@ -84,10 +80,8 @@ export function forceAlign(batches: string[], batchDurations: number[], startTim
     for (let j = 0; j < tokens.length; j++) {
       const end = time + tokenDurations[j];
       out.push({
-        id: id,
-        start: time,
-        end: end,
         text: tokens[j],
+        timestamp: [time, end],
       });
       id++;
       time = end;
