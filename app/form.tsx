@@ -14,17 +14,32 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useContent } from "./content-provider";
+import { useRouter } from "next/navigation";
+import { useRenderer } from "./renderer-provider";
 
 export default function Form() {
   const [preparing, addPreparing] = useOptimistic(
     false,
     (currentState, optimisticValue: boolean) => optimisticValue,
   );
+  const { setTitle, setBody, setTitleAudio, setBodyAudio } = useContent();
+  const { run } = useRenderer();
+  const router = useRouter();
 
   const onSubmit = async (formData: FormData) => {
     // useOptimistic to display loading while the server action is running
     addPreparing(true);
-    await generate(formData);
+    
+    const { title, body, titleAudio, bodyAudio } = await generate(formData);
+    setTitle(title);
+    setBody(body);
+    // setBody([{text: "TEST", timestamp: [5, 30]}])
+    setTitleAudio(titleAudio);
+    setBodyAudio(bodyAudio);
+
+    run(title, body, titleAudio, bodyAudio);
+    router.push('/app');
   };
 
   return (
@@ -41,7 +56,7 @@ export default function Form() {
         <Label className="block" htmlFor="speaker">
           Speaker
         </Label>
-        <Select name="speaker">
+        <Select name="speaker" required>
           <SelectTrigger>
             <SelectValue placeholder="Choose a speaker" />
           </SelectTrigger>
