@@ -17,9 +17,9 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
     setRendering(true);
     setPercentage(0);
 
-    ffmpeg.on("log", ({ message }) => {
-      console.log(message);
-    });
+    // ffmpeg.on("log", ({ message }) => {
+    //   console.log(message);
+    // });
 
     // toBlobURL is used to bypass CORS issue, urls with the same domain can be used directly.
     await ffmpeg.load({

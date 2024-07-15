@@ -43,7 +43,7 @@ export default function Profile() {
               <Badge variant="secondary">5/5</Badge>
               <br />
               <Button asChild>
-                <Link href="">Upgrade plan</Link>
+                <Link href="/plans">Manage</Link>
               </Button>
             </AlertDescription>
           </Alert>

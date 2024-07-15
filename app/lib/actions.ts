@@ -4,6 +4,7 @@ import { promises as fs } from "fs";
 import { fetchGroq, fetchTTS } from "./fetches";
 import { forceAlign, SubItem } from "./srt";
 import { lenSplit } from "./util";
+import { signIn } from "@/auth";
 
 const MALE_SPEAKER = "en_us_006";
 const FEMALE_SPEAKER = "en_us_001";
@@ -56,4 +57,8 @@ export async function generate(formData: FormData): Promise<{title: SubItem, bod
   const res = JSON.parse((await fs.readFile('./public/test.json')).toString());
 
   return res;
+}
+
+export async function signInWith(provider: string, redirect: string) {
+  await signIn(provider, { redirectTo: `/${redirect}` });
 }

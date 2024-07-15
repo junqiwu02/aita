@@ -1,13 +1,13 @@
-import { signIn } from "@/auth";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { signInWith } from "../lib/actions";
 
 export default function SignIn() {
-  const onGoogleSignIn = async () => {
-    "use server";
-    await signIn("google", { redirectTo: "/" });
-  };
+  const searchParams = useSearchParams();
 
   return (
     <>
@@ -16,7 +16,11 @@ export default function SignIn() {
           <CardTitle>Sign In</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={onGoogleSignIn}>
+          <form
+            action={async () => {
+              signInWith("google", searchParams.get("redirect") || "");
+            }}
+          >
             <Button type="submit" className="w-[100%]" variant="outline">
               <Image
                 src="https://authjs.dev/img/providers/google.svg"
