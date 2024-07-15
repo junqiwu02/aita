@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { SubItem, toSRT } from "./srt";
 import { useContent } from "@/app/providers/content-provider";
 
-export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => Promise<void>] {
+export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => Promise<string>] {
   const [rendering, setRendering] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [resURL, setResURL] = useState("");
@@ -15,6 +15,7 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
 
   const render = async (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => {
     setRendering(true);
+    setPercentage(0);
 
     ffmpeg.on("log", ({ message }) => {
       console.log(message);
@@ -87,9 +88,12 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
     ]);
 
     const data = await ffmpeg.readFile("output.mp4");
-    setResURL(URL.createObjectURL(new Blob([data], { type: "video/mp4" })));
+    const downloadURL = URL.createObjectURL(new Blob([data], { type: "video/mp4" }))
+    setResURL(downloadURL);
 
     setRendering(false);
+
+    return downloadURL;
   };
 
   useEffect(() => {

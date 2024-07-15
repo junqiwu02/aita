@@ -11,7 +11,7 @@ import AIForm from "@/app/components/ai-form";
 
 export default function StartOptions() {
   return (
-    <div className="flex flex-wrap justify-center m-auto">
+    <div className="m-auto flex flex-wrap justify-center">
       <Dialog>
         <Button asChild>
           <DialogTrigger>Create with AI ✨</DialogTrigger>
