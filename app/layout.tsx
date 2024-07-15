@@ -30,7 +30,7 @@ export default function RootLayout({
           <ContentProvider>
             <RendererProvider>
               <Nav />
-              <main className="mx-auto flex max-w-xl flex-wrap justify-center align-middle">
+              <main className="mx-auto flex max-w-4xl flex-wrap justify-center align-middle">
                 {children}
               </main>
             </RendererProvider>

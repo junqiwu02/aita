@@ -54,7 +54,7 @@ export default function Preview() {
         </CardContent>
         <CardFooter className="flex justify-center space-x-4">
           {downloadURL ? (
-            <Button asChild>
+            <Button variant="secondary" asChild>
               <a download="shortsjs-download" href={downloadURL}>
                 Download ⬇️
               </a>

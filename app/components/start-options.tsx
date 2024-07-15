@@ -13,9 +13,11 @@ export default function StartOptions() {
   return (
     <div className="m-auto flex flex-wrap justify-center">
       <Dialog>
-        <Button asChild>
-          <DialogTrigger>Create with AI ✨</DialogTrigger>
-        </Button>
+        <div className="rounded-lg bg-gradient-to-tr from-pink-300 to-blue-300 p-0.5">
+          <Button asChild>
+            <DialogTrigger>Create with AI ✨</DialogTrigger>
+          </Button>
+        </div>
 
         <DialogContent>
           <DialogHeader>
@@ -27,8 +29,8 @@ export default function StartOptions() {
         </DialogContent>
       </Dialog>
 
-      <div className="my-4 w-[100%] text-center">or</div>
-      <Button variant="secondary" disabled>
+      <div className="my-2 w-[100%] text-center">or</div>
+      <Button variant="secondary">
         Create from URL 🔗
       </Button>
     </div>

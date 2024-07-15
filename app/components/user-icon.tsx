@@ -29,7 +29,9 @@ export default async function UserIcon() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/settings">Settings</Link>
+          </DropdownMenuItem>
           <form action={onSignOut}>
             <Button
               variant="ghost"
