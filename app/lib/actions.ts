@@ -59,6 +59,6 @@ export async function generate(formData: FormData): Promise<{title: SubItem, bod
   return res;
 }
 
-export async function signInWith(provider: string, redirect: string) {
-  await signIn(provider, { redirectTo: `/${redirect}` });
+export async function signInWith(provider: string, redirectTo: string | null) {
+  await signIn(provider, { redirectTo: redirectTo || "/" });
 }

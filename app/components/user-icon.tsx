@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import SignInButton from "./signin-button";
 
 export default async function UserIcon() {
   const session = await auth();
@@ -46,9 +47,7 @@ export default async function UserIcon() {
     </>
   ) : (
     <>
-      <Button variant="outline">
-        <Link href="/signin">Sign In</Link>
-      </Button>
+      <SignInButton></SignInButton>
     </>
   );
 }

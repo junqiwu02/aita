@@ -88,7 +88,7 @@ export default async function Pricing() {
               <Button disabled>Active</Button>
             ) : (
               <Button asChild>
-                <Link href="/signin">Get Started</Link>
+                <Link href={{ pathname: "/signin", query: { redirect: "/plans" }}}>Get Started</Link>
               </Button>
             )
           }

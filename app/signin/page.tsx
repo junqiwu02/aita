@@ -16,22 +16,23 @@ export default function SignIn() {
           <CardTitle>Sign In</CardTitle>
         </CardHeader>
         <CardContent>
-          <form
-            action={async () => {
-              signInWith("google", searchParams.get("redirect") || "");
+          <Button
+            type="submit"
+            className="w-[100%]"
+            variant="outline"
+            onClick={() => {
+              signInWith("google", searchParams.get("redirect"));
             }}
           >
-            <Button type="submit" className="w-[100%]" variant="outline">
-              <Image
-                src="https://authjs.dev/img/providers/google.svg"
-                alt=""
-                width={24}
-                height={24}
-                className="mr-2"
-              ></Image>
-              Sign in with Google
-            </Button>
-          </form>
+            <Image
+              src="https://authjs.dev/img/providers/google.svg"
+              alt=""
+              width={24}
+              height={24}
+              className="mr-2"
+            ></Image>
+            Sign in with Google
+          </Button>
         </CardContent>
       </Card>
     </>
