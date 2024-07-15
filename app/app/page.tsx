@@ -9,7 +9,6 @@ import { useRenderer } from "../providers/renderer-provider";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
@@ -56,14 +55,14 @@ export default function Preview() {
         <CardFooter className="flex justify-center space-x-4">
           {downloadURL ? (
             <Button asChild>
-              <a download="aita-download" href={downloadURL}>
+              <a download="shortsjs-download" href={downloadURL}>
                 Download ⬇️
               </a>
             </Button>
           ) : (
             <div>
-              <p className="mb-2 text-xs">
-                Preparing download... don&apos;t close the page
+              <p className="mb-2 text-sm">
+                Preparing download... don&apos;t close this page
               </p>
               <Progress value={progress} />
             </div>

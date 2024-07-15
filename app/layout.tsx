@@ -9,8 +9,8 @@ import { RendererProvider } from "@/app/providers/renderer-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AITA.io",
-  description: "Generate Am I the Asshole Reddit stories using AI!",
+  title: "🩳 SHORTS.JS",
+  description: "Create TikTok-ready short videos with a single click",
 };
 
 export default function RootLayout({
