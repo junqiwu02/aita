@@ -37,7 +37,8 @@ export default async function UserIcon() {
             <Button
               variant="ghost"
               size={null}
-              className="w-full justify-start cursor-auto font-normal"
+              className="w-full cursor-auto justify-start font-normal"
+              type="submit"
             >
               <DropdownMenuItem>Sign Out</DropdownMenuItem>
             </Button>

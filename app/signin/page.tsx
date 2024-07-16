@@ -1,10 +1,10 @@
 "use client";
 
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
-import { signInWith } from "../lib/actions";
 
 export default function SignIn() {
   const searchParams = useSearchParams();
@@ -20,9 +20,11 @@ export default function SignIn() {
             type="submit"
             className="w-[100%]"
             variant="outline"
-            onClick={() => {
-              signInWith("google", searchParams.get("redirect"));
-            }}
+            onClick={() =>
+              signIn("google", {
+                callbackUrl: searchParams.get("redirect") || "/",
+              })
+            }
           >
             <Image
               src="https://authjs.dev/img/providers/google.svg"

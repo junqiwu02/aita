@@ -11,8 +11,17 @@ import { Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function Profile() {
+export default async function Profile() {
+  const session = await auth();
+
+  // TODO use middleware for protected routes instead
+  if (!session) {
+    redirect("/signin?redirect=%2Fsettings");
+  }
+
   return (
     <>
       <Card className="w-[100%]">

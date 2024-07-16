@@ -12,7 +12,6 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
@@ -21,12 +20,28 @@ export default function Preview() {
 
   const { title, body } = useContent();
   const { downloadURL, progress } = useRenderer();
-  const router = useRouter();
 
   if (!title.text) {
     // no generated content
-    router.push("/new");
-    return;
+    return (
+      <Card className="relative">
+        <Link
+          href="/"
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+        >
+          <ArrowLeft className="h-4 w-4"></ArrowLeft>
+        </Link>
+        <CardHeader>Video Preview ▶️</CardHeader>
+        <CardContent className="h-[65vh] align-middle flex">
+          <div className="text-center my-auto mx-24">
+            <p className="text-sm text-muted-foreground">No video found!</p>
+            <Button className="mt-4" variant="secondary" asChild>
+              <Link href="/">Back</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   const durationInFrames = Math.ceil((body.at(-1)?.timestamp[1] || 0) * fps);
@@ -35,7 +50,7 @@ export default function Preview() {
     <>
       <Card className="relative">
         <Link
-          href="/new"
+          href="/"
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
         >
           <ArrowLeft className="h-4 w-4"></ArrowLeft>
