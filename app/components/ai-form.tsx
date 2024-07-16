@@ -42,6 +42,7 @@ export default function AIForm() {
     router.push('/app');
   };
 
+  // TODO fix labels htmlFor
   return (
     <form className="space-y-5" action={onSubmit}>
       <div className="grid gap-1.5">

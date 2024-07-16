@@ -27,9 +27,9 @@ export default function Home() {
               <DialogHeader>
                 <DialogTitle>Create with AI ✨</DialogTitle>
                 <DialogDescription>
-                  <AIForm></AIForm>
                 </DialogDescription>
               </DialogHeader>
+              <AIForm></AIForm>
             </DialogContent>
           </Dialog>
 

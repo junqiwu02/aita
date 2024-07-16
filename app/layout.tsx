@@ -5,6 +5,7 @@ import Nav from "@/app/components/nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ContentProvider } from "@/app/providers/content-provider";
 import { RendererProvider } from "@/app/providers/renderer-provider";
+import NoSSRWrapper from "./components/NoSSRWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,7 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    // see https://github.com/shadcn/next-contentlayer/issues/7
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
@@ -28,12 +30,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ContentProvider>
-            <RendererProvider>
-              <Nav />
-              <main className="mx-auto flex max-w-4xl flex-wrap justify-center align-middle">
-                {children}
-              </main>
-            </RendererProvider>
+            <NoSSRWrapper>
+              <RendererProvider>
+                <Nav />
+                <main className="mx-auto flex max-w-4xl flex-wrap justify-center align-middle">
+                  {children}
+                </main>
+              </RendererProvider>
+            </NoSSRWrapper>
           </ContentProvider>
         </ThemeProvider>
       </body>
