@@ -12,21 +12,20 @@ const CPS = 21400; // base64 encoded chars per second of audio
 export async function generate(formData: FormData): Promise<{title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string}> {
   // const userTitle = formData.get("title");
   // const titlePrompt = userTitle ? ` with the title """${userTitle}"""` : "";
-  // const speaker =
-  //   formData.get("speaker") === "female" ? FEMALE_SPEAKER : MALE_SPEAKER;
-  // const include = formData.getAll("include");
-  // const tldr = include.includes("tldr") ? "Include a TL;DR at the bottom of the post. " : "";
-  // const update = include.includes("update") ? "Include an update at the bottom of the post that continues the story. " : "";
+  // const update = formData.get("update") ? "Include an update at the bottom of the post that continues the story. " : "";
   // const content =
   //   `Generate a Reddit story in the form of a r/AmItheAsshole post${titlePrompt}. ` +
   //   `The story should be engaging, juicy, and full of drama. ` +
   //   `Do not use asterisks or dashes for formating. ` +
   //   `Include the title as the first line of the response. ` +
-  //   `${tldr}${update}`;
+  //   `${update}`;
     
   // console.log(`Prompting groq with:\n${content}\n\n`);
   // const rawText = await fetchGroq(content);
   // console.log(`Received response from Groq:\n${rawText}\n\n`);
+
+  // // TODO: feed content to groq and get best guess for gender
+  // const speaker = MALE_SPEAKER;
 
   // const pgraphs = rawText.split("\n");
   // const title = pgraphs[0]; // first line is the title

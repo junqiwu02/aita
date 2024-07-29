@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { CircleAlert, Loader2 } from "lucide-react";
 import { useContent } from "../providers/content-provider";
 import { useRouter } from "next/navigation";
 import { useRenderer } from "../providers/renderer-provider";
@@ -30,7 +30,7 @@ export default function AIForm() {
   const onSubmit = async (formData: FormData) => {
     // useOptimistic to display loading while the server action is running
     addPreparing(true);
-    
+
     const { title, body, titleAudio, bodyAudio } = await generate(formData);
     setTitle(title);
     setBody(body);
@@ -39,7 +39,7 @@ export default function AIForm() {
     setBodyAudio(bodyAudio);
 
     run(title, body, titleAudio, bodyAudio);
-    router.push('/app');
+    router.push("/app");
   };
 
   // TODO fix labels htmlFor
@@ -54,31 +54,27 @@ export default function AIForm() {
         />
       </div>
       <div className="grid gap-1.5">
-        <Label className="block" htmlFor="speaker">
-          Speaker
+        <Label className="block" htmlFor="voice">
+          Voice
         </Label>
-        <Select name="speaker" required>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose a speaker" />
+        <Select name="voice" required>
+          <SelectTrigger id="voice">
+            <SelectValue placeholder="Choose a voiceover style" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="male">TikTok Male</SelectItem>
-            <SelectItem value="female">TikTok Female</SelectItem>
+            <SelectItem value="tiktok">TikTok</SelectItem>
+            <SelectItem value="elevenlabs" disabled>
+              <div className="flex items-center">
+                ElevenLabs
+                <CircleAlert className="ml-2 h-4 w-4" />
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <div className="grid gap-1.5">
-        <Label className="block" htmlFor="include">
-          Include
-        </Label>
-        <div className="flex items-center space-x-2">
-          <Checkbox id="tldr" name="include" value="tldr" />
-          <Label htmlFor="tldr">TL;DR</Label>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Checkbox id="update" name="include" value="update" />
-          <Label htmlFor="update">Update</Label>
-        </div>
+      <div className="flex items-center space-x-2">
+        <Checkbox id="update" name="update" />
+        <Label htmlFor="update">Include an update</Label>
       </div>
       <div>
         <Button disabled={preparing}>
