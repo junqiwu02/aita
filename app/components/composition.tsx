@@ -53,7 +53,7 @@ export const Composition = () => {
       </AbsoluteFill>
       <AbsoluteFill className="justify-center">
         <h1
-          className="font-montserrat text-center text-[48px] font-extrabold"
+          className="font-montserrat text-center text-[48px] font-extrabold text-white"
           style={subStyle}
         >
           {subText}

@@ -1,4 +1,3 @@
-import { ModeToggle } from "@/components/ui/mode-toggle";
 import Link from "next/link";
 import UserIcon from "@/app/components/user-icon";
 import { Button } from "@/components/ui/button";
@@ -13,10 +12,7 @@ export default function Nav() {
         <Button variant="link" asChild>
           <Link href="/plans">Plans</Link>
         </Button>
-        <ModeToggle></ModeToggle>
-        <div className="ml-2">
-          <UserIcon></UserIcon>
-        </div>
+        <UserIcon></UserIcon>
       </div>
     </nav>
   );

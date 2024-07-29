@@ -1,8 +1,7 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SubItem, toSRT } from "./srt";
-import { useContent } from "@/app/providers/content-provider";
 
 export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => Promise<string>] {
   const [rendering, setRendering] = useState(false);
@@ -103,100 +102,4 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
   }, [ffmpeg]);
 
   return [rendering, percentage, resURL, render];
-}
-
-/**
- * @deprecated
- */
-export function useTranscriber(): [number, (audioData: string) => Promise<SubItem[]>] {
-  const [percentage, setPercentage] = useState(0);
-  const { title, setBody } = useContent();
-
-  // Create a reference to the worker object.
-  const worker = useRef<Worker | null>(null);
-
-  // We use the `useEffect` hook to set up the worker as soon as the `App` component is mounted.
-  useEffect(() => {
-    if (!worker.current) {
-      // Create the worker if it does not yet exist.
-      worker.current = new Worker(new URL("./worker.js", import.meta.url), {
-        type: "module",
-      });
-    }
-
-    // Create a callback function for messages from the worker thread.
-    const onMessageReceived = (e: MessageEvent) => {
-      const message = e.data;
-      console.log(`Received message from worker: ${message.status}`);
-      switch (message.status) {
-        case "initiate":
-          setPercentage(5);
-          break;
-        case "ready":
-          setPercentage(10);
-          break;
-        case "update":
-          setPercentage(Math.min(90, percentage + 10));
-          break;
-        case "complete":
-          // delay every word in the transcript by the title duration
-          const transcript: SubItem[] = message.data.chunks;
-          const offset = title.timestamp[1];
-          for (const item of transcript) {
-            item.timestamp[0] += offset;
-            item.timestamp[1] += offset;
-          }
-          setBody(transcript);
-          setPercentage(100);
-          break;
-      }
-    };
-
-    // Attach the callback function as an event listener.
-    worker.current.addEventListener("message", onMessageReceived);
-
-    // Define a cleanup function for when the component is unmounted.
-    return () =>
-      worker.current?.removeEventListener("message", onMessageReceived);
-  });
-
-  const transcribe = useCallback(async (audioData: string) => {
-    function base64ToArrayBuffer(base64: string) {
-      const binaryString = window.atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-      }
-      return bytes.buffer;
-    }
-
-
-    if (worker.current) {
-      // webworkers do not support AudioContext, so we must decode the audio file first in the main thread
-      const audioCTX = new window.AudioContext({
-        sampleRate: 16000,
-      });
-      // const arrayBuffer = await bodyAudio.arrayBuffer();
-      const decoded = await audioCTX.decodeAudioData(base64ToArrayBuffer(audioData));
-      const audio = decoded.getChannelData(0);
-
-      worker.current.postMessage({ audio });
-
-      // wait for the worker to finish before returning
-      const transcript: SubItem[] = await new Promise((resolve, reject) => {
-        worker.current?.addEventListener("message", (e: MessageEvent) => {
-          if (e.data.status === "complete") {
-            resolve(e.data.data.chunks);
-          }
-        });
-      });
-
-      return transcript;
-    }
-
-    return [];
-  }, []);
-
-  return [percentage, transcribe];
 }

@@ -15,7 +15,7 @@ export default function Home() {
       <div className="text-center">
         <h1 className="mt-[64px] text-7xl font-extrabold">🩳 SHORTS.JS</h1>
         <h2 className="mt-2 text-muted-foreground">
-          Create TikTok-ready short videos with a single click
+          Create Reddit-style short videos with a single click
         </h2>
         <div className="mt-[64px]">
           <Dialog>

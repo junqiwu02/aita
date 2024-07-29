@@ -67,7 +67,7 @@ export default async function Pricing() {
 
   return (
     <>
-      <div className="mt-[64px] flex w-[100%] flex-col gap-4 p-4 md:flex-row">
+      <div className="mt-[64px] flex w-[100%] flex-col gap-4 px-2 p-4 md:flex-row">
         <PlanCard
           title="Guest"
           price={0}
