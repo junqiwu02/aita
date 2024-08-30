@@ -1,6 +1,6 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { SubItem, toSRT } from "./srt";
 
 export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: SubItem[], titleAudio: string, bodyAudio: string) => Promise<string>] {
@@ -102,4 +102,24 @@ export function useFFmpeg(): [boolean, number, string, (title: SubItem, body: Su
   }, [ffmpeg]);
 
   return [rendering, percentage, resURL, render];
+}
+
+export function useTitleCard(title: SubItem) {
+  const [titleCardData, setTitleCardData] = useState<ImageData | null>(null);
+
+  // render title card to canvas and return as image data
+  useEffect(() => {
+    const canvas = new OffscreenCanvas(720, 1280);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("OffscreenCanvas context not available");
+    }
+    ctx.font = "20px Montserrat ExtraBold";
+    ctx.fillStyle = "black";
+    ctx.fillText(title.text, canvas.width / 2, canvas.height / 2);
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    setTitleCardData(data);
+  }, [title]);
+
+  return titleCardData;
 }
